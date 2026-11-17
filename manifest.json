@@ -1,0 +1,9 @@
+{
+  "name": "Like a Machine",
+  "short_name": "Machine",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#8b84dc",
+  "theme_color": "#8b84dc",
+  "icons": [{"src": "icon.png", "sizes": "512x512", "type": "image/png"}]
+}

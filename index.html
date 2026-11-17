@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Like a Machine">
+<meta name="theme-color" content="#8b84dc">
+<meta name="robots" content="noindex">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}[hidden]{display:none!important}</style>
+<title>Like a Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: cartões de vidro sobre pétalas; abre em "Hoje" (agora, próximo, linha do dia); 2 colunas no iPad. Visual único, não muda com o tema. */
+:root{
+  --ink:#1c1f4a; --ink-soft:#4a4f86; --ink-faint:#6f73a6;
+  --glass:rgba(255,255,255,.34); --glass-strong:rgba(255,255,255,.58); --glass-line:rgba(255,255,255,.62);
+  --periwinkle:#6f7fe0; --violet:#8a63d2; --rose:#e48bb8;
+  --ok:#2f8a74; --warn:#b8741f; --stop:#c0455f;
+  --c-aula:#6f7fe0; --c-treino:#e0699f; --c-estudo:#8a63d2; --c-comida:#d99a3c; --c-organizacao:#3f9c86;
+  --c-lazer:#4fa3d9; --c-autocuidado:#c48ad6; --c-sono:#3b3f7a; --c-deslocamento:#9aa0c8;
+  --f-display:"Urbanist",ui-sans-serif,system-ui,sans-serif; --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+html{background:#7f86d9}
+body{min-height:100%;font-family:var(--f-body);color:var(--ink);background:linear-gradient(160deg,#8fa6ee 0%,#8b84dc 45%,#c28bc9 100%);background-attachment:fixed;-webkit-font-smoothing:antialiased}
+.petals{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.petals svg{position:absolute;filter:blur(1.5px)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px;display:grid;gap:10px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:700px){.wrap{grid-template-columns:repeat(12,minmax(0,1fr))}.span{grid-column:1/-1}.c7{grid-column:span 7}.c5{grid-column:span 5}.c4{grid-column:span 6}.c6{grid-column:span 6}}
+@media(min-width:1000px){.c4{grid-column:span 4}}
+.glass{background:var(--glass);border:1px solid var(--glass-line);border-radius:20px;-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);box-shadow:0 8px 30px rgba(40,30,110,.14);padding:12px 14px;min-width:0;display:grid;gap:8px;align-content:start}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:2px 2px 0;color:#fff}
+.htext{display:grid;gap:2px;min-width:0}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(24px,6vw,30px);line-height:1.05;margin:0;text-wrap:balance}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);color:#fff;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.chip b{font-weight:600}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block;background:#fff}
+.chip.verde i{background:#7fe0b8}.chip.amarelo i{background:#ffd27a}.chip.vermelho i{background:#ff8fa3}
+h2{font-family:var(--f-display);font-weight:500;font-size:18px;margin:0;text-wrap:balance}
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ms{background:rgba(255,255,255,.4);border-radius:12px;padding:7px 8px;display:grid;gap:0}
+.ms span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.ms b{font-family:var(--f-display);font-size:21px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.15}
+.ms b small{font-size:11px;font-weight:400;color:var(--ink-soft)}
+.ms em{font-style:normal;font-size:11px;color:var(--ink-soft)}
+.ms.hi em{color:#86520f}
+.rows{display:grid;gap:5px;margin:0;padding:0;list-style:none}
+.rows li{display:grid;grid-template-columns:18px 1fr;gap:7px;align-items:start;font-size:14px;line-height:1.35}
+.rows li svg{width:17px;height:17px;margin-top:1px;stroke:var(--violet);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rows li b{font-weight:600}
+.label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+p{margin:0;line-height:1.5}
+.empty{color:var(--ink-soft);font-size:15px}
+.soft{color:var(--ink-soft);font-size:14px}
+/* Abas */
+.tabs{display:inline-grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tabs button{font:inherit;font-size:14px;font-weight:500;padding:7px 16px;border-radius:999px;border:0;background:transparent;color:#fff;cursor:pointer}
+.tabs button[aria-selected="true"]{background:#fff;color:var(--ink)}
+button:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+.view[hidden]{display:none!important}
+/* Agora */
+.now{background:var(--glass-strong);border-radius:16px;padding:10px 12px;display:grid;gap:4px;border-left:6px solid var(--blk,var(--violet))}
+.now .t{font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.now .big{font-family:var(--f-display);font-size:22px;font-weight:500;line-height:1.15}
+.now .soft{font-size:13px}
+.next{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;padding:2px 4px}
+.next b{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink-soft)}
+.bar{height:6px;border-radius:99px;background:rgba(255,255,255,.5);overflow:hidden}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--rose))}
+/* Linha do dia */
+.timeline{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+@media(min-width:1000px){.timeline.two{grid-template-columns:1fr 1fr;column-gap:8px}}
+.blk{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start;padding:4px 8px;border-radius:10px}
+.blk time{font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:600;color:var(--ink-soft);padding-top:1px}
+.blk .w{display:grid;gap:1px;border-left:3px solid var(--blk);padding-left:8px;min-width:0}
+.blk .w strong{font-weight:500;font-size:14px}
+.blk .w strong span{font-weight:400;font-size:12px;color:var(--ink-faint)}
+.blk .w small{display:none;font-size:12.5px;color:var(--ink-soft);line-height:1.35}
+.blk.cur .w small{display:block}
+.blk.past{opacity:.5}
+.blk.cur{background:#fff;box-shadow:0 4px 18px rgba(40,30,110,.14)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:3px;background:var(--blk)}
+/* Cartões de conteúdo */
+.card{background:var(--glass-strong);border-radius:14px;padding:10px 12px;display:grid;gap:6px}
+.tag{justify-self:start;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:linear-gradient(90deg,rgba(228,139,184,.28),rgba(138,99,210,.24));color:var(--ink)}
+.line{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start}
+.line svg{width:20px;height:20px;margin-top:2px;stroke:var(--violet);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.big{font-family:var(--f-display);font-size:21px;font-weight:500;line-height:1.25}
+.tips{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.tips li{background:rgba(255,255,255,.34);border-radius:12px;padding:8px 10px;display:grid;gap:1px}
+.tips strong{font-size:14px;font-weight:600}
+.tips p{font-size:13px;color:var(--ink-soft);line-height:1.35}
+.events{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.events li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;background:rgba(255,255,255,.34);border-radius:14px;padding:10px 12px}
+.events b{font-variant-numeric:tabular-nums;color:var(--stop)}
+/* Semana */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{font:inherit;border:1px solid transparent;background:rgba(255,255,255,.3);border-radius:14px;padding:7px 0 6px;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--ink-soft);cursor:pointer;min-width:0;position:relative}
+.day small{font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.day span{font-family:var(--f-display);font-size:17px;font-weight:500}
+.day.today{border-color:var(--rose)}
+.day.prova::after{content:"";position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--stop)}
+.day[aria-pressed="true"]{background:var(--ink);color:#fff}
+.voice{font-family:var(--f-display);font-size:19px;line-height:1.4;font-weight:400}
+.signals{display:grid;gap:10px}
+.sig{background:rgba(255,255,255,.3);border-radius:18px;padding:14px;display:grid;gap:6px}
+.sig-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.state{font-family:var(--f-display);font-size:20px;font-weight:500}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.bom,.pill.verde{background:rgba(47,138,116,.16);color:#1f6a58}
+.pill.atencao,.pill.amarelo{background:rgba(184,116,31,.16);color:#86520f}
+.pill.vermelho{background:rgba(192,69,95,.16);color:#9a2c45}
+.pill.neutro{background:rgba(111,127,224,.16);color:#3d4aa8}
+.sig p{font-size:14px;color:var(--ink-soft)}
+.duo{display:grid;gap:10px}
+.mini{display:grid;gap:6px}
+.mini .big{font-size:18px}
+/* Corpo */
+.light{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--glass-strong);border-radius:20px;padding:16px}
+.lamp{width:46px;height:46px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 6px rgba(255,255,255,.5)}
+.lamp.amarelo{background:#e7a93b}.lamp.vermelho{background:var(--stop)}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(min-width:560px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tile{background:rgba(255,255,255,.36);border-radius:16px;padding:12px 14px;display:grid;gap:2px;align-content:start}
+.tile b{font-family:var(--f-display);font-size:28px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile b small{font-size:14px;font-weight:400;color:var(--ink-soft)}
+.tile p{font-size:12.5px;color:var(--ink-soft);line-height:1.35}
+.chart{display:grid;gap:6px}
+.chart-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.chart-h strong{font-weight:600;font-size:14px}
+.chart-h span{font-size:12px;color:var(--ink-soft)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:70px;position:relative}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:0}
+.bars i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,var(--rose),var(--violet));opacity:.75}
+.bars div:last-child i{opacity:1}
+.bars i.gap{background:none;border:1px dashed rgba(74,79,134,.35);height:6px!important}
+.bars small{font-size:10px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.bars .v{font-size:10px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.ref{position:absolute;left:0;right:0;border-top:1px dashed rgba(28,31,74,.4)}
+.rules{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rules li{background:rgba(255,255,255,.3);border-radius:16px;padding:12px 14px;display:grid;gap:3px}
+.rules strong{font-family:var(--f-display);font-size:17px;font-weight:500}
+.rules p{font-size:14px;color:var(--ink-soft)}
+/* Check-in */
+.q{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:center}
+.q>span{font-size:13px;color:var(--ink-soft)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.seg button{font:inherit;font-size:13px;padding:6px 4px;border-radius:10px;border:1px solid var(--glass-line);background:rgba(255,255,255,.32);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--violet),var(--rose));color:#fff;border-color:transparent}
+.reply{background:var(--glass-strong);border-radius:18px 18px 18px 6px;padding:14px;display:grid;gap:8px}
+.reply p+p{color:var(--ink-soft)}
+.saved{font-size:12px;color:var(--ink-faint)}
+.dots{display:flex;gap:6px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.45);border:1px solid var(--glass-line)}
+.dot.on{background:var(--rose);border-color:var(--rose)}
+footer{text-align:center;color:rgba(255,255,255,.9);font-size:12px;padding-top:4px}
+@media(prefers-reduced-motion:no-preference){.petals svg{animation:drift 40s ease-in-out infinite alternate}@keyframes drift{to{transform:translate(18px,-14px) rotate(8deg)}}}
+.tabbtn{font:inherit;font-weight:600;padding:10px 18px;border-radius:12px;border:0;background:var(--ink);color:#fff;cursor:pointer}
+</style>
+
+</head>
+<body>
+<div class="petals" aria-hidden="true">
+  <svg width="560" height="560" viewBox="-100 -100 200 200" style="top:-170px;right:-200px;opacity:.55">
+    <defs><radialGradient id="pa" cx="50%" cy="85%" r="80%"><stop offset="0" stop-color="#f6c7e0"/><stop offset=".55" stop-color="#9f8be6"/><stop offset="1" stop-color="#6f7fe0" stop-opacity="0"/></radialGradient></defs>
+    <g fill="url(#pa)"><ellipse cx="0" cy="-48" rx="30" ry="52"/><ellipse cx="0" cy="-48" rx="30" ry="52" transform="rotate(72)"/><ellipse cx="0" cy="-48" rx="30" ry="52" transform="rotate(144)"/><ellipse cx="0" cy="-48" rx="30" ry="52" transform="rotate(216)"/><ellipse cx="0" cy="-48" rx="30" ry="52" transform="rotate(288)"/></g>
+    <circle r="10" fill="#f3d39a" opacity=".8"/>
+  </svg>
+  <svg width="700" height="700" viewBox="-100 -100 200 200" style="bottom:-300px;left:-260px;opacity:.45">
+    <defs><radialGradient id="pb" cx="50%" cy="90%" r="85%"><stop offset="0" stop-color="#c9d8ff"/><stop offset=".5" stop-color="#7c86e6"/><stop offset="1" stop-color="#8a63d2" stop-opacity="0"/></radialGradient></defs>
+    <g fill="url(#pb)"><ellipse cx="0" cy="-50" rx="34" ry="54" transform="rotate(20)"/><ellipse cx="0" cy="-50" rx="34" ry="54" transform="rotate(92)"/><ellipse cx="0" cy="-50" rx="34" ry="54" transform="rotate(164)"/><ellipse cx="0" cy="-50" rx="34" ry="54" transform="rotate(236)"/><ellipse cx="0" cy="-50" rx="34" ry="54" transform="rotate(308)"/></g>
+  </svg>
+</div>
+
+<main class="wrap">
+  <header class="span">
+    <div class="htext">
+      <span class="eyebrow" id="weekLabel">Sua semana</span>
+      <h1 id="hello">Oi</h1>
+      <div class="chips">
+        <span class="chip" id="countdown"></span>
+        <span class="chip" id="lightChip" hidden><i></i><span></span></span>
+        <span class="chip" id="phase" hidden></span>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Seções">
+      <button type="button" role="tab" id="tab-hoje" aria-selected="true">Hoje</button>
+      <button type="button" role="tab" id="tab-semana" aria-selected="false">Semana</button>
+      <button type="button" role="tab" id="tab-corpo" aria-selected="false">Corpo</button>
+    </div>
+  </header>
+
+  <!-- HOJE -->
+  <section class="glass view v-hoje c7" aria-labelledby="nowTitle">
+    <span class="label" id="nowTitle">Agora</span>
+    <div class="now" id="nowCard"><p class="empty">Carregando seu dia…</p></div>
+    <div id="nextBox"></div>
+  </section>
+
+  <section class="glass view v-hoje c5" aria-labelledby="msTitle">
+    <div class="hd"><span class="label" id="msTitle">Corpo esta manhã</span><span class="pill" id="msPill"></span></div>
+    <div class="mstats" id="miniStats"><div class="ms"><span>Sono</span><b>–</b></div><div class="ms"><span>HRV</span><b>–</b></div><div class="ms"><span>FC rep.</span><b>–</b></div><div class="ms"><span>Bateria</span><b>–</b></div></div>
+    <p class="soft" id="msTxt">Os números chegam toda manhã.</p>
+  </section>
+
+  <section class="glass view v-hoje c4" aria-labelledby="tTitle">
+    <h2 id="tTitle">Hoje</h2>
+    <ul class="rows" id="todayCard"><li><span></span><span class="soft">O treino da semana aparece aqui toda segunda.</span></li></ul>
+  </section>
+
+  <section class="glass view v-hoje c4" aria-labelledby="sgTitle">
+    <h2 id="sgTitle">Sugestões</h2>
+    <ul class="tips" id="tips"><li><p>As sugestões chegam com os números do relógio, toda manhã.</p></li></ul>
+  </section>
+
+  <section class="glass view v-hoje c4" aria-labelledby="amTitle">
+    <h2 id="amTitle">Amanhã</h2>
+    <ul class="rows" id="tomorrowCard"></ul>
+    <ul class="events" id="eventsSoon" hidden></ul>
+  </section>
+
+  <section class="glass view v-hoje span" aria-labelledby="dTitle">
+    <div class="hd"><h2 id="dTitle">Linha do dia</h2><span class="soft" style="font-size:12px">toque em Semana para outros dias</span></div>
+    <ol class="timeline two" id="timelineToday"></ol>
+    <div class="legend" id="legend"></div>
+  </section>
+
+
+  <!-- SEMANA -->
+  <section class="glass view v-semana span" aria-labelledby="wdTitle" hidden>
+    <span class="label">Toque num dia</span>
+    <h2 id="wdTitle">Semana</h2>
+    <div class="days" id="days" role="group" aria-label="Dias da semana"></div>
+  </section>
+  <section class="glass view v-semana c7" aria-labelledby="selTitle" hidden>
+    <h2 id="selTitle">Dia</h2>
+    <ul class="rows card" id="dayCard"></ul>
+    <ol class="timeline two" id="timelineSel"></ol>
+  </section>
+  <section class="glass view v-semana c5" aria-labelledby="wTitle" hidden>
+    <span class="label">Provas e compromissos</span>
+    <h2>Calendário</h2>
+    <ul class="events" id="eventsWeek"></ul>
+    <span class="label" style="margin-top:6px">Sua semana em poucas palavras</span>
+    <h2 id="wTitle">O que o relógio contou</h2>
+    <p class="voice" id="resumo">Assim que os dados da semana chegarem, eu te conto aqui o que mudou.</p>
+    <div class="signals" id="signals"></div>
+    <div class="duo">
+      <div class="mini"><span class="label">Foco da semana</span><p class="big" id="foco">–</p><p id="focoPq" class="soft"></p></div>
+      <div class="mini"><span class="label">Doce planejado</span><p class="big" id="doce">–</p><p id="doceTx" class="soft"></p></div>
+    </div>
+  </section>
+
+  <!-- CORPO -->
+  <section class="glass view v-corpo span" aria-labelledby="gTitle" hidden>
+    <span class="label" id="gStamp">Garmin</span>
+    <h2 id="gTitle">Como seu corpo acordou</h2>
+    <div class="light"><div class="lamp" id="lamp"></div><div><p class="big" id="lightTitle">Semáforo da manhã</p><p class="soft" id="lightTxt">Os números chegam toda manhã depois da sincronização do relógio.</p></div></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+  <section class="glass view v-corpo c7" aria-labelledby="trTitle" hidden>
+    <span class="label">Últimos 7 dias</span>
+    <h2 id="trTitle">Tendência</h2>
+    <div id="charts" style="display:grid;gap:16px"></div>
+  </section>
+  <section class="glass view v-corpo c5" aria-labelledby="rTitle" hidden>
+    <span class="label">Vale para todos os dias</span>
+    <h2 id="rTitle">Suas regras de sono</h2>
+    <ul class="rules" id="rules"></ul>
+  </section>
+
+  <section class="glass span" id="setup" hidden aria-labelledby="setupTitle">
+    <h2 id="setupTitle">Conectar seus dados</h2>
+    <p class="soft">Cole aqui o token de leitura do GitHub. Ele fica salvo só neste aparelho e serve só para ler o repositório garming-dados.</p>
+    <p class="soft" id="setupMsg"></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="tokenIn" type="password" autocomplete="off" placeholder="github_pat_…" style="flex:1;min-width:0;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--glass-line);background:rgba(255,255,255,.7);color:var(--ink)"><button type="button" id="saveToken" class="tabbtn">Salvar</button></div>
+  </section>
+  <footer class="span"><span id="foot">Dados do seu Garmin · nada aqui substitui seu médico</span> · <button type="button" id="resetToken" style="font:inherit;background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer">trocar token</button></footer>
+</main>
+
+<script>
+const TZ="America/Belem";
+const $=id=>document.getElementById(id);
+const WD=["dom","seg","ter","qua","qui","sex","sáb"];
+const WDL=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+const TIPO={aula:"Aula",treino:"Treino",estudo:"Estudo",comida:"Comida",organizacao:"Organização",lazer:"Lazer",autocuidado:"Autocuidado",sono:"Sono",deslocamento:"Trajeto"};
+const ICON={treino:'<svg viewBox="0 0 24 24"><path d="M13 4a1.5 1.5 0 1 0 0 .01M10 20l2-6 3 3v4M7 11l3-3 4 1 2 3h3"/></svg>',
+ dica:'<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg>',
+ lua:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+ comer:'<svg viewBox="0 0 24 24"><path d="M12 21c4.4 0 8-3.1 8-8H4c0 4.9 3.6 8 8 8zM8 9c0-2 1-3 2-4M12 9c0-2.5 1.5-4 3-5"/></svg>',
+ bolsa:'<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg>'};
+
+/* Semana padrão, nome e data da cirurgia vêm de data/app/rotina.json (repositório privado). */
+let ROTINA={dias:{},eventos:[]};
+let NOME="", SURGERY="";
+
+function todayISO(){return new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date())}
+function nowMin(){const p=new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date()).split(":");return (+p[0])*60+(+p[1])}
+function toMin(s){if(!s)return null;const [h,m]=s.split(":");return (+h)*60+(+m)}
+function fmtH(s){if(!s)return"";const [h,m]=s.split(":");return (+h)+"h"+(m==="00"?"":m)}
+function dayDiff(a,b){return Math.round((Date.parse(b+"T12:00:00Z")-Date.parse(a+"T12:00:00Z"))/864e5)}
+function dayISO(off,base){const d=new Date(Date.parse((base||today)+"T12:00:00Z")+off*864e5);return d.toISOString().slice(0,10)}
+function wdOf(iso){return new Date(iso+"T12:00:00Z").getUTCDay()}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function num(v,nd=1){return v==null?"–":String(Math.round(v*10**nd)/10**nd).replace(".",",")}
+function blocksFor(iso){return (ROTINA.dias[wdOf(iso)]||ROTINA.dias[String(wdOf(iso))]||[])}
+function weekDay(iso){return (week?.dias||[]).find(x=>x.data===iso)}
+function eventsOn(iso){return (ROTINA.eventos||[]).filter(e=>e.data===iso)}
+
+let today=todayISO();
+let week=null, garmin=null, selected=today, checkins={}, current={};
+
+function renderHeader(){
+  const left=SURGERY?dayDiff(today,SURGERY):null;
+  $("countdown").hidden=left==null;
+  if(left!=null)$("countdown").innerHTML=left>0?`<b>${left}</b> dias para ${SURGERY.slice(8)}/${SURGERY.slice(5,7)}`:left===0?"Hoje é o dia. Você se preparou bem.":"Recuperação em primeiro lugar";
+  const h=Math.floor(nowMin()/60);
+  $("hello").textContent=(h<12?"Bom dia":h<18?"Boa tarde":"Boa noite")+(NOME?", "+NOME:"");
+  const d=new Date(today+"T12:00:00Z");
+  $("weekLabel").textContent=`${WDL[d.getUTCDay()]}, ${d.getUTCDate()}/${String(d.getUTCMonth()+1).padStart(2,"0")}`+(week?.titulo?` · ${week.titulo}`:"");
+  if(week?.fase){$("phase").hidden=false;$("phase").textContent=week.fase}
+  if(garmin?.semaforo&&garmin.data_ref===today){
+    const c=$("lightChip");c.hidden=false;c.className="chip "+garmin.semaforo;
+    c.querySelector("span").textContent={verde:"Sinal verde",amarelo:"Sinal amarelo",vermelho:"Sinal vermelho"}[garmin.semaforo]||"";
+  }
+}
+
+function blockHTML(b,state){
+  const [ini,fim,tipo,tit,nota]=b;
+  return `<li class="blk ${state||""}" style="--blk:var(--c-${esc(tipo)})" title="${esc(TIPO[tipo]||tipo)}"><time>${esc(ini)}</time><div class="w"><strong>${esc(tit)}${fim?` <span>até ${esc(fmtH(fim))}</span>`:""}</strong>${nota?`<small>${esc(nota)}</small>`:""}</div></li>`;
+}
+function renderTimeline(el,iso,live){
+  const bl=blocksFor(iso), n=nowMin();
+  el.innerHTML=bl.map((b,i)=>{
+    let st="";
+    if(live){const a=toMin(b[0]), z=b[1]?toMin(b[1]):a+1;if(n>=z)st="past";else if(n>=a)st="cur"}
+    return blockHTML(b,st);
+  }).join("");
+}
+function renderLegend(){
+  $("legend").innerHTML=Object.entries(TIPO).map(([k,v])=>`<span style="--blk:var(--c-${k})"><i></i>${v}</span>`).join("");
+}
+
+function renderNow(){
+  const bl=blocksFor(today), n=nowMin();
+  let cur=null, nxt=null;
+  for(let i=0;i<bl.length;i++){const a=toMin(bl[i][0]), z=bl[i][1]?toMin(bl[i][1]):null;
+    if(n>=a&&(z==null?false:n<z)){cur=bl[i];nxt=bl[i+1];break}
+    if(n<a){nxt=bl[i];break}}
+  const last=bl[bl.length-1];
+  const card=$("nowCard");
+  if(cur){
+    const a=toMin(cur[0]), z=toMin(cur[1]), pct=Math.round((n-a)/(z-a)*100), rest=z-n;
+    let extra="";
+    if(cur[2]==="treino"&&weekDay(today)?.treino) extra=`<p class="soft">${esc(weekDay(today).treino)}</p>`;
+    card.style.setProperty("--blk",`var(--c-${cur[2]})`);
+    card.innerHTML=`<span class="t">${esc(cur[0])} – ${esc(cur[1])} · faltam ${rest>=60?Math.floor(rest/60)+" h "+(rest%60?rest%60+" min":""):rest+" min"}</span><p class="big">${esc(cur[3])}</p>${cur[4]?`<p class="soft">${esc(cur[4])}</p>`:""}${extra}<div class="bar"><span style="width:${pct}%"></span></div>`;
+  }else if(last&&n>=toMin(last[0])){
+    const t=weekDay(dayISO(1));const tb=blocksFor(dayISO(1));
+    card.style.setProperty("--blk","var(--c-sono)");
+    card.innerHTML=`<span class="t">Depois das ${esc(fmtH(last[0]))}</span><p class="big">Hora de dormir</p><p class="soft">Amanhã o despertador é às ${esc(fmtH(tb[0]?.[0]))}${t?.treino?". "+esc(t.treino):""}.</p>`;
+  }else{
+    card.style.setProperty("--blk","var(--c-sono)");
+    card.innerHTML=`<span class="t">Antes das ${esc(fmtH(bl[0]?.[0]))}</span><p class="big">Ainda é hora de dormir</p><p class="soft">Se acordou antes, fique deitada com luz apagada.</p>`;
+  }
+  $("nextBox").innerHTML=nxt?`<div class="next"><b>${esc(nxt[0])}</b><span><span class="label">Depois</span> ${esc(nxt[3])}</span></div>`:"";
+}
+
+function dayCardHTML(iso){
+  const d=weekDay(iso), ev=eventsOn(iso);
+  const bl=blocksFor(iso), wake=bl[0]?.[0], bed=bl.find(b=>b[3]==="Deitar")?.[0];
+  const li=(ic,html)=>`<li>${ICON[ic]}<span>${html}</span></li>`;
+  let h=li("treino",`<b>${esc(d?.treino||"Treino ainda não definido")}</b>${d?.tag?` <span class="soft">· ${esc(d.tag)}</span>`:""}`);
+  ev.forEach(e=>h+=li("dica",`<b>${esc(e.tipo==="prova"?"Prova":"Compromisso")}${e.hora?" "+esc(e.hora):""}:</b> ${esc(e.titulo)}`));
+  if(d?.comer)h+=li("comer",esc(d.comer));
+  if(d?.dica)h+=li("dica",esc(d.dica));
+  h+=li("lua",`Acordar ${esc(fmtH(wake))} · deitar ${esc(fmtH(bed))}`);
+  return h;
+}
+function renderToday(){
+  $("tTitle").textContent=`Hoje, ${WDL[wdOf(today)]}`;
+  $("todayCard").innerHTML=dayCardHTML(today);
+  // Amanhã
+  const tm=dayISO(1), d=weekDay(tm), bl=blocksFor(tm), prep=blocksFor(today).find(b=>b[2]==="organizacao");
+  const ev=eventsOn(tm);
+  $("amTitle").textContent=`Amanhã, ${WDL[wdOf(tm)]}`;
+  $("tomorrowCard").innerHTML=`
+   <li>${ICON.lua}<span><b>Despertador ${esc(fmtH(bl[0]?.[0]))}</b></span></li>
+   <li>${ICON.treino}<span>${esc(d?.treino||bl.find(b=>b[2]==="treino")?.[3]||"Sem treino marcado")}</span></li>
+   ${ev.map(e=>`<li>${ICON.dica}<span><b>${esc(e.tipo==="prova"?"Prova":"Compromisso")}${e.hora?" "+esc(e.hora):""}:</b> ${esc(e.titulo)}</span></li>`).join("")}
+   ${prep?`<li>${ICON.bolsa}<span><b>Hoje ${esc(fmtH(prep[0]))}:</b> ${esc(prep[4]||prep[3])}</span></li>`:""}`;
+  // Provas nos próximos 7 dias
+  const soon=(ROTINA.eventos||[]).filter(e=>e.data>today&&e.data<=dayISO(7)&&e.data!==tm).sort((a,b)=>a.data.localeCompare(b.data));
+  const box=$("eventsSoon");box.hidden=!soon.length;
+  box.innerHTML=soon.map(e=>`<li><b>${esc(e.data.slice(8))}/${esc(e.data.slice(5,7))}</b><span>${esc(e.titulo)}</span></li>`).join("");
+  renderTimeline($("timelineToday"),today,true);
+}
+
+function renderMini(){
+  if(!garmin)return;
+  const n=garmin.noite||{}, m=garmin.medias||{}, fresh=garmin.data_ref===today;
+  const hb=n.hrv_base||[];
+  const cells=[
+   ["Sono",n.sono_h==null?"–":num(n.sono_h),"h",n.deitou?`${n.deitou}–${n.acordou}`:"sem registro",n.sono_h!=null&&n.sono_h<6.5],
+   ["HRV",n.hrv??"–","ms",`média ${m.hrv_28??"–"}`,hb[0]&&n.hrv<hb[0]],
+   ["FC rep.",n.fc_rep??"–","bpm",`normal ~${num(n.fc_base,0)}`,n.fc_base&&n.fc_rep-n.fc_base>=5],
+   ["Bateria",n.bb_acordar??"–","",`ao acordar`,n.bb_acordar!=null&&n.bb_acordar<40]];
+  $("miniStats").innerHTML=cells.map(([l,v,u,s,hi])=>`<div class="ms ${hi?"hi":""}"><span>${esc(l)}</span><b>${esc(v)}<small> ${esc(u)}</small></b><em>${esc(s)}</em></div>`).join("");
+  const p=$("msPill");p.className="pill "+(garmin.semaforo||"");p.textContent=({verde:"verde",amarelo:"amarelo",vermelho:"vermelho"}[garmin.semaforo]||"")+(fresh?"":" · ontem");
+  $("msTxt").textContent=garmin.semaforo_txt||"";
+}
+function renderTips(){
+  const box=$("tips");
+  if(!garmin){return}
+  const fresh=garmin.data_ref===today;
+  const list=(garmin.sugestoes||[]).map(s=>`<li><strong>${esc(s.titulo)}</strong><p>${esc(s.texto)}</p></li>`);
+  if(!fresh)list.unshift(`<li><strong>Números de ${esc(garmin.atualizado||"ontem")}</strong><p>A sincronização de hoje ainda não chegou. Abra o app de novo depois das 9h.</p></li>`);
+  box.innerHTML=list.join("")||`<li><p>Sem sugestões novas hoje. Siga o plano.</p></li>`;
+}
+
+/* Semana */
+function renderDays(){
+  const box=$("days");box.innerHTML="";
+  const start=(week?.dias?.[0]?.data)||dayISO(-((wdOf(today)+6)%7));
+  for(let i=0;i<7;i++){
+    const iso=dayISO(i,start);
+    const b=document.createElement("button");
+    b.type="button";b.className="day"+(iso===today?" today":"")+(eventsOn(iso).some(e=>e.tipo==="prova")?" prova":"");b.id="day-"+iso;
+    const dt=new Date(iso+"T12:00:00Z");
+    b.innerHTML=`<small>${WD[dt.getUTCDay()]}</small><span>${dt.getUTCDate()}</span>`;
+    b.setAttribute("aria-pressed",String(iso===selected));
+    b.addEventListener("click",()=>{selected=iso;renderDays();renderSel()});
+    box.appendChild(b);
+  }
+}
+function renderSel(){
+  const dt=new Date(selected+"T12:00:00Z");
+  $("selTitle").textContent=selected===today?"Hoje":`${WDL[dt.getUTCDay()]}, ${dt.getUTCDate()}`;
+  $("dayCard").innerHTML=dayCardHTML(selected);
+  renderTimeline($("timelineSel"),selected,selected===today);
+}
+function renderWeek(){
+  $("resumo").textContent=week?.resumo||"Assim que os dados da semana chegarem, eu te conto aqui o que mudou.";
+  const s=$("signals");s.innerHTML="";
+  (week?.sinais||[]).forEach(x=>{
+    const el=document.createElement("div");el.className="sig";
+    el.innerHTML=`<div class="sig-top"><div><span class="label">${esc(x.area)}</span><div class="state">${esc(x.estado)}</div></div><span class="pill ${esc(x.tom||"neutro")}">${esc(x.selo||"")}</span></div><p>${esc(x.texto)}</p>`;
+    s.appendChild(el);
+  });
+  $("foco").textContent=week?.foco?.titulo||"–";$("focoPq").textContent=week?.foco?.porque||"";
+  $("doce").textContent=week?.doce?.titulo||"–";$("doceTx").textContent=week?.doce?.como||"";
+  const ev=(ROTINA.eventos||[]).filter(e=>e.data>=today).sort((a,b)=>a.data.localeCompare(b.data)).slice(0,8);
+  $("eventsWeek").innerHTML=ev.length?ev.map(e=>`<li><b>${esc(e.data.slice(8))}/${esc(e.data.slice(5,7))}</b><span>${esc(e.titulo)}${e.hora?" · "+esc(e.hora):""}</span></li>`).join(""):`<li><b>–</b><span>Provas ainda não importadas. Mande os prints do calendário no chat.</span></li>`;
+  renderDays();renderSel();
+}
+
+/* Corpo */
+function bars(serie,key,fmt,ref,lbl){
+  const vals=serie.map(s=>s[key]).filter(v=>typeof v==="number");
+  if(!vals.length)return "";
+  const max=Math.max(...vals,ref||0)*1.1||1;
+  const refLine=ref?`<span class="ref" style="bottom:${ref/max*100}%" title="média de 28 dias"></span>`:"";
+  return `<div class="bars" role="img" aria-label="${esc(lbl)}">${refLine}${serie.map(s=>{const v=s[key];return `<div>${v==null?"":`<span class="v">${fmt(v)}</span>`}<i class="${v==null?"gap":""}" style="height:${v==null?6:Math.max(6,v/max*100)}%"></i><small>${esc(s.d)}</small></div>`}).join("")}</div>`;
+}
+function renderCorpo(){
+  if(!garmin)return;
+  const g=garmin, n=g.noite||{}, m=g.medias||{}, t=g.treino||{};
+  $("gStamp").textContent=`Garmin · atualizado ${g.atualizado||""}`;
+  const fresh=g.data_ref===today;
+  $("lamp").className="lamp "+(g.semaforo||"");
+  $("lightTitle").textContent=({verde:"Sinal verde",amarelo:"Sinal amarelo",vermelho:"Sinal vermelho"}[g.semaforo]||"Semáforo da manhã")+(fresh?"":" (de ontem)");
+  $("lightTxt").textContent=g.semaforo_txt||"";
+  const hb=n.hrv_base||[];
+  const tiles=[
+   ["Sono esta noite",n.sono_h==null?"–":num(n.sono_h),"h",n.deitou?`${n.deitou} → ${n.acordou}. Média 7 dias: ${num(m.sono_7)} h`:"Sem registro: durma com o relógio."],
+   ["Score do sono",n.score??"–","",`Seu sono de 7 h ou mais costuma vir com score maior.`],
+   ["HRV da noite",n.hrv??"–","ms",hb[0]?`Sua faixa normal: ${hb[0]} a ${hb[1]} ms. Média 7 dias: ${m.hrv_7??"–"}`:""],
+   ["FC de repouso",n.fc_rep??"–","bpm",n.fc_base?`Seu normal: ~${num(n.fc_base,0)} bpm. ${n.fc_rep-n.fc_base>=5?"Acima: pegue leve.":"Dentro do normal."}`:""],
+   ["Body Battery ao acordar",n.bb_acordar??"–","",`Acima de 60 é dia bom para treino de qualidade.`],
+   ["Passos ontem",g.ontem?.passos!=null?g.ontem.passos.toLocaleString("pt-BR"):"–","",`Média 7 dias: ${m.passos_7!=null?Math.round(m.passos_7).toLocaleString("pt-BR"):"–"}. Meta: 8 a 9 mil.`],
+   ["Corrida em 7 dias",num(t.km_7),"km",`${t.corridas_7||0} corridas e ${t.outros_7||0} outros treinos. Média do mês: ${num(t.km_sem_28)} km/semana.`],
+   ["Carga aguda/crônica",t.acwr!=null?num(t.acwr,2):"–","",`Faixa segura: 0,8 a 1,3. ${t.acwr>1.3?"Acima: não some treinos.":t.acwr<0.8?"Abaixo: espaço para subir com calma.":"Na faixa."}`],
+   ["VO₂max",t.vo2max??"–","",`Estimativa do relógio.`]];
+  $("tiles").innerHTML=tiles.map(([l,v,u,p])=>`<div class="tile"><span class="label">${esc(l)}</span><b>${esc(v)} <small>${esc(u)}</small></b><p>${esc(p)}</p></div>`).join("");
+  const s=g.serie||[];
+  $("charts").innerHTML=`
+   <div class="chart"><div class="chart-h"><strong>Horas de sono</strong><span>tracejado = sua média do mês (${num(m.sono_28)} h)</span></div>${bars(s,"sono",v=>num(v),m.sono_28,"Horas de sono nos últimos 7 dias")}</div>
+   <div class="chart"><div class="chart-h"><strong>HRV noturna (ms)</strong><span>média do mês: ${m.hrv_28??"–"} ms</span></div>${bars(s,"hrv",v=>v,m.hrv_28,"HRV nos últimos 7 dias")}</div>
+   <div class="chart"><div class="chart-h"><strong>FC de repouso (bpm)</strong><span>média do mês: ${num(m.fc_28)} bpm</span></div>${bars(s,"fc",v=>v,m.fc_28,"FC de repouso nos últimos 7 dias")}</div>`;
+  if(g.ultimo_dado&&dayDiff(g.ultimo_dado,today)>2)$("lightTxt").textContent+=" A sincronização do Garmin parece parada: olhe a aba Actions do repositório.";
+}
+const DEFAULT_RULES=[
+ {titulo:"A hora de acordar manda",texto:"Mesmo depois de uma noite ruim, acorde no horário do app. A hora de dormir se ajusta sozinha."},
+ {titulo:"Corte de telas e projetos",texto:"No bloco Desacelerar, a noite acaba. O que ficou para trás vira o primeiro item do dia seguinte."},
+ {titulo:"Luz forte logo cedo",texto:"10 a 15 min na rua ou na janela ao acordar adiantam o relógio do corpo."},
+ {titulo:"Cochilo curto",texto:"No máximo 20 min e nunca depois das 14h."},
+ {titulo:"Cafeína até 14h",texto:"Depois disso ela ainda está no corpo na hora de dormir."},
+ {titulo:"Regra do semáforo",texto:"Dormiu 6h30 ou mais: treino como planejado. Entre 5 h e 6h30: só leve. Menos de 5 h: descanso. Treino perdido não se repõe."}];
+function renderRules(){
+  const rules=(week?.sono_regras&&week.sono_regras.length)?week.sono_regras:DEFAULT_RULES;
+  $("rules").innerHTML=rules.map(r=>`<li><strong>${esc(r.titulo)}</strong><p>${esc(r.texto)}</p></li>`).join("");
+}
+
+/* Abas */
+const VIEWS=["hoje","semana","corpo"];
+function showView(v){
+  if(!VIEWS.includes(v))v="hoje";
+  document.querySelectorAll(".view").forEach(el=>el.hidden=!el.classList.contains("v-"+v));
+  VIEWS.forEach(k=>$("tab-"+k).setAttribute("aria-selected",String(k===v)));
+}
+VIEWS.forEach(k=>$("tab-"+k).addEventListener("click",()=>{showView(k);try{history.replaceState(null,"","#"+k)}catch(e){}}));
+window.addEventListener("hashchange",()=>showView(location.hash.slice(1)));
+
+function renderAll(){renderHeader();renderNow();renderToday();renderMini();renderTips();renderWeek();renderCorpo();renderRules()}
+showView(location.hash.slice(1)||"hoje");
+renderLegend();renderAll();
+setInterval(()=>{const t=todayISO();if(t!==today){today=t;selected=t}renderHeader();renderNow();renderTimeline($("timelineToday"),today,true)},60000);
+
+/* Dados: lidos do repositório privado no GitHub com o token salvo só neste aparelho. */
+const REPO="mariaclaramacedopardim-wq/garming-dados";
+const TK="minhaSemanaToken";
+function getToken(){try{return localStorage.getItem(TK)||""}catch(e){return ""}}
+function setToken(t){try{t?localStorage.setItem(TK,t):localStorage.removeItem(TK)}catch(e){}}
+function cacheGet(k){try{return JSON.parse(localStorage.getItem("ms:"+k)||"null")}catch(e){return null}}
+function cacheSet(k,v){try{localStorage.setItem("ms:"+k,JSON.stringify(v))}catch(e){}}
+async function gh(path,ref){
+  const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${path}${ref?"?ref="+ref:""}`,{headers:{Authorization:"Bearer "+getToken(),Accept:"application/vnd.github.raw+json"},cache:"no-store"});
+  if(r.status===404)return null;
+  if(!r.ok)throw Object.assign(new Error("http "+r.status),{status:r.status});
+  return r.json();
+}
+function applyRotina(r){if(r.dias)ROTINA.dias=r.dias;NOME=r.nome||"";SURGERY=r.cirurgia||""}
+function showSetup(msg){$("setup").hidden=false;$("setupMsg").textContent=msg||""}
+async function load(){
+  week=cacheGet("semana")||week;garmin=cacheGet("hoje")||garmin;const ev=cacheGet("eventos");if(ev)ROTINA.eventos=ev;
+  const ro=cacheGet("rotina");if(ro)applyRotina(ro);
+  renderAll();
+  if(!getToken()){showSetup("");return}
+  try{
+    // O plano da semana e as provas ficam no branch app-plano (escrito pela rotina semanal); se não existir, usa o principal.
+    const plano=p=>gh(p,"app-plano").catch(()=>null).then(x=>x||gh(p));
+    const [h,s,e,ro]=await Promise.all([gh("data/app/hoje.json"),plano("data/app/semana.json"),plano("data/app/eventos.json"),gh("data/app/rotina.json")]);
+    if(ro){applyRotina(ro);cacheSet("rotina",ro)}
+    if(h){garmin=h;cacheSet("hoje",h)}
+    if(s){week=s;cacheSet("semana",s)}
+    if(e){ROTINA.eventos=e.eventos||[];cacheSet("eventos",ROTINA.eventos)}
+    $("setup").hidden=true;$("foot").textContent="Dados do seu Garmin · nada aqui substitui seu médico";
+    renderAll();
+  }catch(err){
+    if(err.status===401||err.status===403)showSetup("O token não foi aceito ou expirou. Crie um novo e cole aqui.");
+    else $("foot").textContent="Sem internet agora: mostrando os últimos dados salvos.";
+  }
+}
+$("saveToken").addEventListener("click",()=>{const v=$("tokenIn").value.trim();if(!v)return;setToken(v);$("tokenIn").value="";load()});
+$("resetToken").addEventListener("click",()=>{setToken("");showSetup("Token apagado deste aparelho.")});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+load();
+</script>
+
+</body>
+</html>
