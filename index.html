@@ -62,6 +62,7 @@ h2{font-family:var(--f-display);font-weight:500;font-size:18px;margin:0;text-wra
 p{margin:0;line-height:1.5}
 .empty{color:var(--ink-soft);font-size:15px}
 .soft{color:var(--ink-soft);font-size:14px}
+.hrv-txt{margin-top:6px;font-size:13px;line-height:1.4}
 /* Abas */
 .tabs{display:inline-grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .tabs button{font:inherit;font-size:14px;font-weight:500;padding:7px 16px;border-radius:999px;border:0;background:transparent;color:#fff;cursor:pointer}
@@ -214,6 +215,7 @@ footer{text-align:center;color:rgba(255,255,255,.9);font-size:12px;padding-top:4
     <div class="hd"><span class="label" id="msTitle">Corpo esta manhã</span><span class="pill" id="msPill"></span></div>
     <div class="mstats" id="miniStats"><div class="ms"><span>Sono</span><b>–</b></div><div class="ms"><span>HRV</span><b>–</b></div><div class="ms"><span>FC rep.</span><b>–</b></div><div class="ms"><span>Bateria</span><b>–</b></div></div>
     <p class="soft" id="msTxt">Os números chegam toda manhã.</p>
+    <p class="soft hrv-txt" id="hrvTxt" hidden></p>
   </section>
 
   <section class="glass view v-hoje c4" aria-labelledby="tTitle">
@@ -409,18 +411,37 @@ function renderToday(){
   renderTimeline($("timelineToday"),today,true);
 }
 
+/* Leitura da HRV: compara a noite com a faixa pessoal do Garmin.
+   A rotina diária pode mandar noite.hrv_txt; se não mandar, o app calcula. */
+function hrvLeitura(g){
+  const n=g?.noite||{}, hb=n.hrv_base||[], lo=hb[0], hi=hb[1], v=n.hrv;
+  if(v==null)return {curto:"ainda não chegou",txt:n.hrv_txt||"A HRV desta noite ainda não chegou. Abra o app de novo mais tarde."};
+  if(!lo||!hi)return {curto:`média ${g.medias?.hrv_28??"–"}`,txt:n.hrv_txt||""};
+  // dias seguidos abaixo da faixa, contando de hoje para trás (dias sem dado não quebram a sequência)
+  let seq=0;const s=(g.serie||[]).slice();
+  if(s.length&&s[s.length-1].hrv==null)s[s.length-1]={...s[s.length-1],hrv:v};
+  for(let i=s.length-1;i>=0;i--){const x=s[i].hrv;if(x==null)continue;if(x<lo)seq++;else break}
+  let curto,txt;
+  if(v<lo&&seq>=3){curto=`abaixo há ${seq} dias`;txt=`Abaixo da sua faixa há ${seq} dias seguidos: vale atenção. Priorize sono e refeições regulares, treine só leve e, se vier cansaço fora do comum ou sinais de gripe, descanse.`}
+  else if(v<lo){curto="abaixo da faixa";txt="Abaixo da sua faixa: o corpo está sob mais estresse (físico ou mental) e a recuperação ainda não fechou. Também pode ser sinal de gripe chegando. Dia de pegar mais leve."}
+  else if(v>hi){curto="acima da faixa";txt="Acima da sua faixa: costuma indicar boa recuperação. Siga o plano, sem somar treino extra."}
+  else if(v<lo+(hi-lo)*.15){curto="no limite baixo";txt="Na faixa, mas perto do limite de baixo: treino como planejado, observando como o corpo responde."}
+  else{curto="na faixa";txt="Dentro da sua faixa: corpo pronto para a carga planejada."}
+  return {curto,txt:n.hrv_txt||txt,baixo:v<lo};
+}
 function renderMini(){
   if(!garmin)return;
   const n=garmin.noite||{}, m=garmin.medias||{}, fresh=garmin.data_ref===today;
-  const hb=n.hrv_base||[];
+  const hl=hrvLeitura(garmin);
   const cells=[
    ["Sono",n.sono_h==null?"–":num(n.sono_h),"h",n.deitou?`${n.deitou}–${n.acordou}`:"sem registro",n.sono_h!=null&&n.sono_h<6.5],
-   ["HRV",n.hrv??"–","ms",`média ${m.hrv_28??"–"}`,hb[0]&&n.hrv<hb[0]],
+   ["HRV",n.hrv??"–","ms",hl.curto,hl.baixo],
    ["FC rep.",n.fc_rep??"–","bpm",`normal ~${num(n.fc_base,0)}`,n.fc_base&&n.fc_rep-n.fc_base>=5],
    ["Bateria",n.bb_acordar??"–","",`ao acordar`,n.bb_acordar!=null&&n.bb_acordar<40]];
   $("miniStats").innerHTML=cells.map(([l,v,u,s,hi])=>`<div class="ms ${hi?"hi":""}"><span>${esc(l)}</span><b>${esc(v)}<small> ${esc(u)}</small></b><em>${esc(s)}</em></div>`).join("");
   const p=$("msPill");p.className="pill "+(garmin.semaforo||"");p.textContent=({verde:"verde",amarelo:"amarelo",vermelho:"vermelho"}[garmin.semaforo]||"")+(fresh?"":" · ontem");
   $("msTxt").textContent=garmin.semaforo_txt||"";
+  const h=$("hrvTxt");h.hidden=!hl.txt;h.innerHTML=hl.txt?`<b>HRV:</b> ${esc(hl.txt)}`:"";
 }
 function renderTips(){
   const box=$("tips");
@@ -487,7 +508,7 @@ function renderCorpo(){
   const tiles=[
    ["Sono esta noite",n.sono_h==null?"–":num(n.sono_h),"h",n.deitou?`${n.deitou} → ${n.acordou}. Média 7 dias: ${num(m.sono_7)} h`:"Sem registro: durma com o relógio."],
    ["Score do sono",n.score??"–","",`Seu sono de 7 h ou mais costuma vir com score maior.`],
-   ["HRV da noite",n.hrv??"–","ms",hb[0]?`Sua faixa normal: ${hb[0]} a ${hb[1]} ms. Média 7 dias: ${m.hrv_7??"–"}`:""],
+   ["HRV da noite",n.hrv??"–","ms",[hrvLeitura(g).txt,hb[0]?`Sua faixa: ${hb[0]} a ${hb[1]} ms. Média 7 dias: ${m.hrv_7??"–"}.`:""].filter(Boolean).join(" ")],
    ["FC de repouso",n.fc_rep??"–","bpm",n.fc_base?`Seu normal: ~${num(n.fc_base,0)} bpm. ${n.fc_rep-n.fc_base>=5?"Acima: pegue leve.":"Dentro do normal."}`:""],
    ["Body Battery ao acordar",n.bb_acordar??"–","",`Acima de 60 é dia bom para treino de qualidade.`],
    ["Passos ontem",g.ontem?.passos!=null?g.ontem.passos.toLocaleString("pt-BR"):"–","",`Média 7 dias: ${m.passos_7!=null?Math.round(m.passos_7).toLocaleString("pt-BR"):"–"}. Meta: 8 a 9 mil.`],
