@@ -81,6 +81,24 @@ p{margin:0}
 .read b small{font-family:var(--f-body);font-size:11px;font-weight:500;color:var(--soft);letter-spacing:0;margin-left:1px}
 .read span{font-family:var(--f-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
 .read .hot b{color:var(--pinkdeep)}
+.read .alt{background:#ffe7a3;border-color:#f2b500;box-shadow:inset 0 0 0 1.5px #f2b500}
+.read .alt b,.read .alt b small,.read .alt span{color:#7a4f00}
+.nb{display:grid;gap:9px}
+.nb>div{display:grid;grid-template-columns:34px 1fr 52px;align-items:center;gap:8px}
+.nb span,.bd span{font-family:var(--f-mono);font-size:10px;color:var(--faint);text-transform:uppercase}
+.nb .tr{position:relative;height:14px;border-radius:99px;background:rgba(29,27,46,.07)}
+.nb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--lav)}
+.nb .tr i.short{background:var(--pink)}
+.nb .tr em{position:absolute;top:-4px;bottom:-4px;border-left:2px solid var(--ink)}
+.nb b,.bd b{font-family:var(--f-disp);font-weight:800;font-size:15px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.nbk{display:flex;gap:14px;margin-top:12px;font-family:var(--f-mono);font-size:9px;color:var(--soft);text-transform:uppercase}
+.nbk span{display:inline-flex;align-items:center;gap:5px}
+.nbk span::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
+.bd{display:grid;gap:10px}
+.bd>div{display:grid;grid-template-columns:34px 52px 1fr;align-items:center;gap:8px}
+.bd b{text-align:left}
+.bd em{justify-self:end;font-style:normal;font-family:var(--f-mono);font-size:10px;padding:4px 9px;border-radius:99px;background:#e4def9;color:#3d2f8f;text-transform:uppercase;letter-spacing:.03em}
+.bd em.late{background:#ffd3e6;color:#9b1450}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 12px 0}
 .pair>*{border-radius:22px;padding:12px;display:grid;gap:3px;align-content:start;min-width:0}
 .pair .mono{font-size:9.5px}
@@ -122,19 +140,6 @@ p{margin:0}
 .bars i.lav{background:linear-gradient(180deg,#cfc8ff,#8e7bff)}
 .bars i.gap{height:6px;background:none;border:1px dashed var(--faint);border-bottom:0}
 .days7{display:grid;grid-template-columns:repeat(7,1fr);font-family:var(--f-mono);font-size:9px;color:var(--faint);text-align:center;text-transform:uppercase}
-.debt{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:96px}
-.debt div{position:relative}
-.debt div::before{content:"";position:absolute;left:-3px;right:-3px;top:50%;border-top:1px solid rgba(29,27,46,.25)}
-.debt i{position:absolute;left:0;right:0;display:block;max-height:50%;border-radius:4px}
-.debt .up{bottom:50%;background:var(--lav)}.debt .dn{top:50%;background:var(--pink)}
-.bed{display:grid;gap:4px}
-.bed>div{display:grid;grid-template-columns:36px 1fr;align-items:center;height:16px}
-.bed span{font-family:var(--f-mono);font-size:9px;color:var(--faint);text-transform:uppercase}
-.bed .tr{position:relative;height:100%}
-.bed .tr::before{content:"";position:absolute;top:-2px;bottom:-2px;left:var(--m);border-left:1px dashed var(--soft)}
-.bed i{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--pink);transform:translate(-50%,-50%)}
-.bed i.far{background:#fff;border:2px solid var(--pink)}
-.bedax{display:flex;justify-content:space-between;margin:6px 0 0 36px;font-family:var(--f-mono);font-size:9px;color:var(--faint)}
 
 .tabs{display:flex;gap:4px;margin:4px 16px 0;padding:4px;border-radius:999px;font-family:var(--f-disp);font-size:13.5px}
 .tabs button{flex:1;text-align:center;padding:7px 0;border-radius:999px;color:var(--soft)}
@@ -274,9 +279,10 @@ textarea.field{min-height:96px;resize:vertical}
  <div id="sNow"></div>
  <div class="sh"><span class="mono ink">Últimas 7 noites</span></div>
  <div class="read r3" id="sRead"></div>
- <div class="card glass"><div class="debt" id="sDebt"></div><div class="days7" id="sDebtD" style="margin-top:6px"></div></div>
+ <div class="sh"><span class="mono ink">Quanto dormiu</span><span class="mono" id="sMetaH"></span></div>
+ <div class="card glass"><div class="nb" id="sDebt"></div><div class="nbk"><span style="--c:var(--lav)">bateu a meta</span><span style="--c:var(--pink)">abaixo</span><span style="--c:var(--ink)">meta</span></div></div>
  <div class="sh"><span class="mono ink">Horário de deitar</span><span class="mono" id="sMeta"></span></div>
- <div class="card glass"><div class="bed" id="sBed"></div><div class="bedax"><span>20h</span><span>22h</span><span>0h</span><span>2h</span></div></div>
+ <div class="card glass"><div class="bd" id="sBed"></div></div>
  <button class="more glass" data-go="regras"><span>Suas regras de sono</span><span>→</span></button>
 </section>
 
@@ -404,6 +410,8 @@ function dayISO(off,base){return new Date(Date.parse((base||today)+"T12:00:00Z")
 function wdOf(iso){return new Date(iso+"T12:00:00Z").getUTCDay()}
 function dShort(iso){const [,m,d]=iso.split("-");return (+d)+"/"+(+m)}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function hmTxt(h){if(h==null||isNaN(h))return"–";const t=Math.round(h*60);return Math.floor(t/60)+"h"+String(t%60).padStart(2,"0")}
+function hmB(h){if(h==null||isNaN(h))return"–";const t=Math.round(Math.abs(h)*60);return Math.floor(t/60)+"<small>h</small>"+String(t%60).padStart(2,"0")}
 function num(v,nd=1){return v==null||isNaN(v)?"–":String(Math.round(v*10**nd)/10**nd).replace(".",",")}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){return null}}
 function cacheGet(k){try{return JSON.parse(ls("lam:"+k)||"null")}catch(e){return null}}
@@ -537,7 +545,7 @@ function tips(){
  const out=[],n=H?.noite||{};
  if(H?.sugestoes?.[0])out.push([H.sugestoes[0].titulo,H.sugestoes[0].texto+(H.semaforo_txt?" "+H.semaforo_txt:""),"Treino · Garmin"]);
  else if(H?.semaforo_txt)out.push([SIG[H.semaforo]?.[0]||"Sinal do dia",H.semaforo_txt,"Treino · Garmin"]);
- if(n.sono_h!=null&&n.sono_h<6.5)out.push(["Noite curta, dia gentil","Você dormiu "+num(n.sono_h)+" h. Hoje vale deitar 30 minutos mais cedo e não somar treino.","Sono · Garmin"]);
+ if(n.sono_h!=null&&n.sono_h<6.5)out.push(["Noite curta, dia gentil","Você dormiu "+hmTxt(n.sono_h)+". Hoje vale deitar 30 minutos mais cedo e não somar treino.","Sono · Garmin"]);
  const seed=+today.replace(/-/g,"");
  out.push(SONO_T[seed%SONO_T.length]);
  out.push(seed%4===0?FRASES[seed%FRASES.length]:CAB_T[seed%CAB_T.length]);
@@ -561,7 +569,7 @@ function ringsData(){
  const tDone=(dia.treinos||[]).length;
  const pm=dia.passos_meta||8000,am=ROT?.meta_agua_ml||3000;
  return[
-  {k:"Sono",c:"#8e7bff",p:n.sono_h!=null?n.sono_h/meta:0,v:n.sono_h!=null?num(n.sono_h)+"/"+meta+"h":"–"},
+  {k:"Sono",c:"#8e7bff",p:n.sono_h!=null?n.sono_h/meta:0,v:n.sono_h!=null?hmTxt(n.sono_h)+"/"+meta+"h":"–"},
   {k:"Passos",c:"#ff5ea8",p:dia.passos!=null?dia.passos/pm:0,v:dia.passos!=null?num(dia.passos/1000)+"/"+num(pm/1000)+" mil":"–"},
   {k:"Água",c:"#5b8cff",p:dia.agua_ml!=null?dia.agua_ml/am:0,v:dia.agua_ml!=null?num(dia.agua_ml/1000)+"/"+num(am/1000)+" L":"0/"+num(am/1000)+" L",ml:dia.agua_ml||0,meta:am},
   {k:"Treino",c:"#a6c400",p:tPlan?tDone/tPlan:1,v:tPlan?tDone+"/"+tPlan:"descanso"}
@@ -580,6 +588,12 @@ function renderRings(){
 /* telas */
 const SIG={verde:["Sinal verde","#3cc47c"],amarelo:["Sinal amarelo","#f2b500"],vermelho:["Sinal vermelho","#ff3d6e"]};
 function greet(){const m=nowMin();return m<720?"Bom dia":m<1080?"Boa tarde":"Boa noite"}
+function flags(n){const meta=ROT?.meta_sono_h||8,hb=n.hrv_base||[],f={};
+ if(n.sono_h!=null&&n.sono_h<meta-0.5)f.sono="curto";
+ if(n.hrv!=null){if(hb.length&&n.hrv<hb[0])f.hrv="baixo";else if(hb.length&&n.hrv>hb[1])f.hrv="alto";else if(["UNBALANCED","LOW","POOR"].includes(n.hrv_status))f.hrv="fora"}
+ if(n.fc_rep!=null&&n.fc_base!=null&&n.fc_rep>n.fc_base+3)f.fc="alta";
+ if(n.bb_acordar!=null&&n.bb_acordar<45)f.bb="baixa";
+ return f}
 function renderHoje(){
  renderRings();
  const d=today.split("-");$("hDay").textContent=+d[2];
@@ -606,8 +620,8 @@ function renderHoje(){
  $("hNow").innerHTML=html;
  const n=H?.noite||{},sg=SIG[H?.semaforo];
  $("hSig").textContent=sg?sg[0]:"";$("hSig").style.setProperty("--c",sg?sg[1]:"#9a95ad");$("hSig").hidden=!sg;
- const hrvLow=n.hrv!=null&&n.hrv_base&&n.hrv<n.hrv_base[0];
- $("hRead").innerHTML=`<div class="glass"><b>${num(n.sono_h)}<small>h</small></b><span>Sono</span></div><div class="glass ${hrvLow?"hot":""}"><b>${n.hrv??"–"}<small>ms</small></b><span>HRV</span></div><div class="glass"><b>${n.fc_rep??"–"}</b><span>FC rep.</span></div><div class="glass"><b>${n.bb_acordar??"–"}</b><span>Bateria</span></div>`;
+ const fl=flags(n),t=(k,b,l)=>`<div class="glass${fl[k]?" alt":""}"><b>${b}</b><span>${l}${fl[k]?" · "+fl[k]:""}</span></div>`;
+ $("hRead").innerHTML=t("sono",hmB(n.sono_h),"Sono")+t("hrv",(n.hrv??"–")+"<small>ms</small>","HRV")+t("fc",n.fc_rep??"–","FC rep.")+t("bb",n.bb_acordar??"–","Bateria");
  const w=workout(today),tb=trainBlock(today),tm=dayISO(1),w2=workout(tm),b2=blocksFor(tm)[0];
  $("hPair").innerHTML=`<button class="glass" data-go="treino"><span class="mono">Treino${w&&tb?" · "+fmtH(tb[0]):""}</span><strong>${w?esc(w.name):"Descanso"}</strong><small>${w?esc(wDur(w)):"caminhada leve"}</small></button>
  <button class="glass" data-go="sono"><span class="mono">Amanhã · ${WDL[wdOf(tm)]}</span><strong>${w2?esc(w2.name):"Sem treino"}</strong><small>${b2?"acorda "+fmtH(b2[0]):""}</small></button>`;
@@ -648,7 +662,7 @@ function renderCarga(){
  <div><span>Corrida na semana</span><b>${num(t.km_7)} km</b><i>média de ${num(t.km_sem_28)} km por semana no mês</i></div>`;
 }
 function nights(){return Object.keys(DI).sort().slice(-7).map(d=>Object.assign({d},DI[d]))}
-function bedMin(ms){let m=hm(new Date(ms));if(m<720)m+=1440;return m}
+function bedMin(ms){const d=new Date(ms);let m=d.getUTCHours()*60+d.getUTCMinutes();if(m<720)m+=1440;return m}
 function renderSono(){
  const des=blocksFor(today).find(b=>b[3]==="Desacelerar"),dep=deitar(today),tm=dayISO(1),b2=blocksFor(tm)[0],w2=workout(tm);
  const bed=dep?dep[0]:"22:00";
@@ -659,14 +673,14 @@ function renderSono(){
  const bt=ns.filter(x=>x.ini).map(x=>bedMin(x.ini));
  const mean=bt.length?bt.reduce((a,b)=>a+b,0)/bt.length:0;
  const sd=bt.length>1?Math.sqrt(bt.reduce((a,b)=>a+(b-mean)**2,0)/bt.length):null;
- $("sRead").innerHTML=`<div class="glass"><b>${num(avg)}<small>h</small></b><span>Média</span></div><div class="glass ${debt<0?"hot":""}"><b>${ns.length?(debt>=0?"+":"−")+num(Math.abs(debt)):"–"}<small>h</small></b><span>Dívida</span></div><div class="glass"><b>${sd!=null?"±"+Math.round(sd):"–"}<small>min</small></b><span>Constância</span></div>`;
- const cols=`repeat(${Math.max(all.length,1)},1fr)`;
- $("sDebt").style.gridTemplateColumns=cols;$("sDebtD").style.gridTemplateColumns=cols;
- $("sDebt").innerHTML=all.map(x=>{if(x.sono==null)return"<div></div>";const df=x.sono-meta,hh=Math.min(50,Math.abs(df)/3*50);return `<div><i class="${df>=0?"up":"dn"}" style="height:${hh}%"></i></div>`}).join("");
- $("sDebtD").innerHTML=all.map(x=>`<span>${WD[wdOf(dayISO(-1,x.d))]}</span>`).join("");
- const metaMin=toMin(bed),lo=20*60,hi=26*60,pos=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+ $("sRead").innerHTML=`<div class="glass"><b>${hmB(avg)}</b><span>Média</span></div><div class="glass ${debt<0?"hot":""}"><b>${ns.length?(debt>=0?"+":"−")+hmB(debt):"–"}</b><span>Dívida</span></div><div class="glass"><b>${sd!=null?"±"+Math.round(sd):"–"}<small>min</small></b><span>Constância</span></div>`;
+ const mx=Math.max(10,meta+1,...ns.map(x=>x.sono)),pc=v=>Math.min(100,v/mx*100);
+ $("sMetaH").textContent="meta "+meta+"h";
+ $("sDebt").innerHTML=all.map(x=>`<div><span>${WD[wdOf(dayISO(-1,x.d))]}</span><div class="tr">${x.sono!=null?`<i class="${x.sono<meta-0.25?"short":""}" style="width:${pc(x.sono)}%"></i>`:""}<em style="left:${pc(meta)}%"></em></div><b>${hmTxt(x.sono)}</b></div>`).join("")||`<p class="empty">Sem noites ainda</p>`;
  $("sMeta").textContent="meta "+fmtH(bed);
- $("sBed").innerHTML=all.filter(x=>x.ini).map(x=>{const mm=bedMin(x.ini),d=dayISO(-1,x.d),meta2=toMin((deitar(d)||[bed])[0]);return `<div><span>${WD[wdOf(d)]}</span><div class="tr" style="--m:${pos(meta2)}%"><i class="${mm-meta2>45?"far":""}" style="left:${pos(mm)}%" title="${fmtMin(mm)}"></i></div></div>`}).join("")||`<p class="empty">Sem noites ainda</p>`;
+ $("sBed").innerHTML=all.filter(x=>x.ini).map(x=>{const mm=bedMin(x.ini),d=dayISO(-1,x.d),mt=toMin((deitar(d)||[bed])[0]),df=mm-mt;
+  const lab=df<=15?(df<-15?"antes da meta":"no horário"):dur(df)+" depois";
+  return `<div><span>${WD[wdOf(d)]}</span><b>${fmtMin(mm)}</b><em class="${df>15?"late":""}">${lab}</em></div>`}).join("")||`<p class="empty">Sem noites ainda</p>`;
  $("rList").innerHTML=(ROT?.regras_sono||[]).map((r,i)=>`<div><span>${esc(r)}</span><b>${i+1}</b></div>`).join("")||`<p class="empty">Sem regras salvas</p>`;
 }
 function renderCorpo(){
@@ -675,13 +689,13 @@ function renderCorpo(){
  $("cNow").innerHTML=sg?`<div class="now"><div class="k"><span>Hoje</span><span>sinal do dia</span></div><div class="ttl">${sg[0]}</div>${H.semaforo_txt?`<div class="nx"><span>${esc(H.semaforo_txt)}</span></div>`:""}</div>`:"";
  $("cNight").textContent=n.deitou?n.deitou+" → "+n.acordou:"";
  const last=DI[H?.data_ref]||{};
- $("cRead").innerHTML=`<div class="glass"><b>${num(n.sono_h)}<small>h</small></b><span>Dormiu</span></div><div class="glass"><b>${n.score??"–"}</b><span>Qualidade</span></div><div class="glass"><b>${last.prof!=null?num(last.prof/60):"–"}<small>h</small></b><span>Profundo</span></div><div class="glass"><b>${last.acord!=null?Math.round(last.acord):"–"}<small>min</small></b><span>Acordada</span></div>`;
+ $("cRead").innerHTML=`<div class="glass${flags(n).sono?" alt":""}"><b>${hmB(n.sono_h)}</b><span>Dormiu${flags(n).sono?" · curto":""}</span></div><div class="glass"><b>${n.score??"–"}</b><span>Qualidade</span></div><div class="glass"><b>${last.prof!=null?hmB(last.prof/60):"–"}</b><span>Profundo</span></div><div class="glass"><b>${last.acord!=null?Math.round(last.acord):"–"}<small>min</small></b><span>Acordada</span></div>`;
  const ph=[["Profundo",last.prof,"#8e7bff"],["Leve",last.leve,"#c9d4ff"],["REM",last.rem,"#ff9fcb"],["Acordada",last.acord,"#ffd84d"]].filter(x=>x[1]!=null);
  const tot=ph.reduce((a,x)=>a+x[1],0);
  $("cPhases").hidden=!tot;
  $("cPhases").innerHTML=tot?`<div class="phases">${ph.map(x=>`<i style="width:${x[1]/tot*100}%;background:${x[2]}"></i>`).join("")}</div><div class="legend">${ph.map(x=>`<span style="--c:${x[2]}">${x[0]} ${Math.round(x[1])}′</span>`).join("")}</div>`:"";
  const hb=n.hrv_base||[];
- const hrvT=n.hrv==null?"":hb.length&&n.hrv<hb[0]?"abaixo da sua faixa: treino leve":hb.length&&n.hrv>hb[1]?"acima da faixa: bom dia para treinar":"dentro da sua faixa: treino mantido";
+ const hrvT=n.hrv==null?"":hb.length&&n.hrv<hb[0]?"abaixo da sua faixa: treino leve":hb.length&&n.hrv>hb[1]?"acima da faixa: bom dia para treinar":["UNBALANCED","LOW","POOR"].includes(n.hrv_status)?"fora do seu padrão: treino leve":"dentro da sua faixa: treino mantido";
  const fcT=n.fc_rep==null||n.fc_base==null?"":n.fc_rep>n.fc_base+3?"acima do normal: sinal de cansaço":"no seu normal";
  const bb=n.bb_acordar,bbT=bb==null?"":bb>=70?"energia para o dia todo":bb>=45?"energia até a tarde":"tanque baixo: poupe energia";
  $("cEff").innerHTML=`<div><span>HRV</span><b>${n.hrv??"–"} ms</b><i>${hrvT}</i></div><div><span>FC repouso</span><b>${n.fc_rep??"–"} bpm</b><i>${fcT}</i></div><div><span>Bateria ao acordar</span><b>${bb??"–"}</b><i>${bbT}</i></div>`;
@@ -699,13 +713,13 @@ function renderSemana(){
  if(m.hrv_7!=null)parts.push(m.hrv_7<m.hrv_28*0.9?"HRV abaixo do normal":"HRV estável");
  if(m.fc_7!=null)parts.push(m.fc_7>m.fc_28+2?"FC de repouso subiu":"FC de repouso estável");
  $("wNow").innerHTML=parts.length?`<div class="now"><div class="k"><span>O que o relógio contou</span><span>7 dias</span></div><p class="say">${esc(parts.join(", "))}.</p></div>`:"";
- $("wRead").innerHTML=`<div class="glass"><b>${num(m.sono_7)}<small>h</small></b><span>Sono${arrow(m.sono_7,m.sono_28)}</span></div><div class="glass"><b>${m.hrv_7??"–"}<small>ms</small></b><span>HRV${arrow(m.hrv_7,m.hrv_28)}</span></div><div class="glass"><b>${num(m.fc_7,0)}</b><span>FC rep.${arrow(m.fc_7,m.fc_28)}</span></div><div class="glass"><b>${m.passos_7!=null?num(m.passos_7/1000):"–"}<small>mil</small></b><span>Passos${arrow(m.passos_7,m.passos_28)}</span></div>`;
+ $("wRead").innerHTML=`<div class="glass"><b>${hmB(m.sono_7)}</b><span>Sono${arrow(m.sono_7,m.sono_28)}</span></div><div class="glass"><b>${m.hrv_7??"–"}<small>ms</small></b><span>HRV${arrow(m.hrv_7,m.hrv_28)}</span></div><div class="glass"><b>${num(m.fc_7,0)}</b><span>FC rep.${arrow(m.fc_7,m.fc_28)}</span></div><div class="glass"><b>${m.passos_7!=null?num(m.passos_7/1000):"–"}<small>mil</small></b><span>Passos${arrow(m.passos_7,m.passos_28)}</span></div>`;
  const bars=(k,max,cls)=>`<div class="bars">${s.map(x=>x[k]==null?`<i class="gap"></i>`:`<i class="${cls||""}" style="height:${Math.min(100,x[k]/max*100)}%"></i>`).join("")}</div><div class="days7">${s.map(x=>`<span>${x.d}</span>`).join("")}</div>`;
  $("wSpark").innerHTML=`<div class="sk"><span class="mono">Sono por noite</span>${bars("sono",10)}</div><div class="sk"><span class="mono">HRV por noite</span>${bars("hrv",Math.max(60,...s.map(x=>x.hrv||0)),"lav")}</div>`;
  const f=SEM?.foco?.titulo;$("wFoco").hidden=!f;$("wFoco").innerHTML=`<span class="mono">Foco</span><p>${esc(f||"")}</p>`;
  const ev=(EV||[]).filter(e=>e.data>=today).slice(0,5);
  $("wProvas").innerHTML=ev.length?`<div class="card glass list"><span class="mono" style="padding-bottom:4px">Provas e compromissos</span>${ev.map(e=>`<div><span>${esc(e.titulo||e.nome||"")}</span><b>${dShort(e.data)}</b></div>`).join("")}</div>`:"";
- $("wDias").innerHTML=[...s].reverse().map(x=>`<div><span>dia ${x.d}</span><b>${x.sono!=null?num(x.sono)+" h":"–"} · HRV ${x.hrv??"–"} · FC ${x.fc??"–"}</b></div>`).join("")||`<p class="empty">Sem dados</p>`;
+ $("wDias").innerHTML=[...s].reverse().map(x=>`<div><span>dia ${x.d}</span><b>${hmTxt(x.sono)} · HRV ${x.hrv??"–"} · FC ${x.fc??"–"}</b></div>`).join("")||`<p class="empty">Sem dados</p>`;
 }
 const GMET=[["energia","Energia"],["humor","Humor"],["estresse","Estresse"],["sono","Sono"],["comida","Comida"],["foco","Foco"]];
 let gSel="energia";
@@ -751,7 +765,7 @@ $("pqChips").addEventListener("click",e=>{const b=e.target.closest("[data-pq]");
 $("pqGo").addEventListener("click",()=>{
  const q=$("pqText").value.trim();if(!q){$("pqText").focus();return}
  const n=H?.noite||{},w=workout(today),dep=deitar(today),m=nowMin(),cur=blocksFor(today).find(b=>b[1]&&toMin(b[0])<=m&&toMin(b[1])>m);
- const ctx=[`Agora são ${fmtMin(m)} de ${WDL[wdOf(today)]}.`,H?.semaforo?`Sinal do dia: ${H.semaforo}.`:"",n.sono_h!=null?`Dormi ${num(n.sono_h)} h, HRV ${n.hrv} ms, bateria ${n.bb_acordar}.`:"",`Treino de hoje: ${w?w.name:"descanso"}.`,cur?`Agora: ${cur[3]}.`:"",dep?`Deito às ${fmtH(dep[0])}.`:""].filter(Boolean).join(" ");
+ const ctx=[`Agora são ${fmtMin(m)} de ${WDL[wdOf(today)]}.`,H?.semaforo?`Sinal do dia: ${H.semaforo}.`:"",n.sono_h!=null?`Dormi ${hmTxt(n.sono_h)}, HRV ${n.hrv} ms, bateria ${n.bb_acordar}.`:"",`Treino de hoje: ${w?w.name:"descanso"}.`,cur?`Agora: ${cur[3]}.`:"",dep?`Deito às ${fmtH(dep[0])}.`:""].filter(Boolean).join(" ");
  const p=`${q}\n\n${ctx}\n\nMe responda curto, em tópicos, com o próximo passo concreto para hoje. Sem compensar com treino ou cortando refeição.`;
  window.open("https://claude.ai/new?q="+encodeURIComponent(p),"_blank","noopener");closeSheets();
 });
