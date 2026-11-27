@@ -842,10 +842,11 @@ function sleepRec(iso){
  const bt=nights().filter(x=>x.ini).map(x=>bedMin(x.ini)).sort((a,b)=>a-b);
  const anchor=bt.length?bt[Math.floor(bt.length/2)]:plan;
  const goal=wake-(meta*60+15);
- let rec=Math.max(goal,anchor-120);if(rec>plan)rec=plan;rec=Math.round(rec/15)*15;
+ let rec=Math.round(Math.max(goal,anchor-120)/15)*15;if(rec>=plan)rec=plan;
  const slp=b=>wake-b-15;
  let why;
  if(rec===plan&&slp(plan)>=meta*60-10)why=`Seu horário de sempre já dá ${dur(slp(plan))} de sono.`;
+ else if(rec===plan)why=`É o horário da sua agenda: o mais perto das ${meta}h sem se afastar demais da sua rotina.`;
  else if(rec<=goal+10)why=`Assim você dorme ${meta}h e acorda às ${fmtMin(wake)}, sem fugir muito do seu horário de costume.`;
  else why=`Para dormir ${meta}h seria ${fmtMin(goal)}. ${fmtMin(rec)} é o mais perto disso sem se afastar mais de 2h do seu horário habitual.`;
  return{rec,goal,plan,anchor,wake,meta,sRec:slp(rec),sPlan:slp(plan),why}}
