@@ -451,7 +451,12 @@ textarea.field{min-height:96px;resize:vertical}
   <p class="note" id="tokMsg"></p>
   <div class="row2"><button class="btn" id="tokSave">Salvar</button><button class="btn ghost" id="tokDel">Apagar</button></div>
  </div>
- <div class="grp"><span class="mono ink">Chave do Claude</span>
+ <div class="grp"><span class="mono ink">Projeto do Claude (opcional)</span>
+  <input class="field" id="plIn" type="url" autocomplete="off" placeholder="https://claude.ai/…">
+  <p class="note" id="plMsg"></p>
+  <div class="row2"><button class="btn" id="plSave">Salvar</button><button class="btn ghost" id="plDel">Apagar</button></div>
+ </div>
+ <div class="grp"><span class="mono ink">Chave do Claude (opcional, paga)</span>
   <input class="field" id="akIn" type="password" autocomplete="off" placeholder="sk-ant-…">
   <p class="note" id="akMsg"></p>
   <div class="row2"><button class="btn" id="akSave">Salvar</button><button class="btn ghost" id="akDel">Apagar</button></div>
@@ -899,7 +904,7 @@ document.addEventListener("click",e=>{
  const fa=e.target.closest("[data-fase]");if(fa){tPh=+fa.dataset.fase;renderTreino();return}
  const tt=e.target.closest("[data-ttab]");if(tt){document.querySelectorAll("[data-ttab]").forEach(b=>b.classList.toggle("on",b===tt));$("tSemana").hidden=tt.dataset.ttab!=="semana";$("tZonas").hidden=tt.dataset.ttab!=="zonas"}
 });
-function openSheet(id){document.querySelectorAll(".sheet").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("scrim").classList.add("on");$("plus").classList.toggle("x",id==="menu");document.body.dataset.sheet=id;if(id==="ajustes")$("akMsg").textContent=ls(AK)?"Chave salva neste aparelho.":"Cole a chave para o Perguntar responder aqui."}
+function openSheet(id){document.querySelectorAll(".sheet").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("scrim").classList.add("on");$("plus").classList.toggle("x",id==="menu");document.body.dataset.sheet=id;if(id==="perguntar")$("pqNote").textContent=ls(AK)?"Responde aqui mesmo":"Copia e abre o projeto";if(id==="ajustes")$("plMsg").textContent=ls(PL)?"Link próprio salvo neste aparelho.":"Usando o projeto Like a Machine.";if(id==="ajustes")$("akMsg").textContent=ls(AK)?"Chave salva neste aparelho.":"Cole a chave para o Perguntar responder aqui."}
 function closeSheets(){document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));$("scrim").classList.remove("on");$("plus").classList.remove("x");delete document.body.dataset.sheet}
 $("plus").addEventListener("click",()=>{$("s-menu").classList.contains("on")?closeSheets():openSheet("menu")});
 $("odGo").addEventListener("click",()=>{const d=$("odDate").value;if(d&&d<=today)ckOpen(d)});
@@ -911,7 +916,7 @@ $("tEx").addEventListener("toggle",e=>{if(e.target.open)$("tEx").querySelectorAl
 const PQ=["Comi além da conta","Saiu do planejado","Treino ou descanso?","Vou dormir tarde"];
 $("pqChips").innerHTML=PQ.map(q=>`<button data-pq="${q}">${q}</button>`).join("");
 $("pqChips").addEventListener("click",e=>{const b=e.target.closest("[data-pq]");if(!b)return;document.querySelectorAll("[data-pq]").forEach(x=>x.classList.toggle("on",x===b));$("pqText").value=b.dataset.pq});
-const AK="lamClaudeKey";let PH=[];
+const AK="lamClaudeKey",PL="lamClaudeProjeto",PL0="https://claude.ai/code/project/chan_01UC2GUs9co6CcvCw2SEMioy";const projLink=()=>ls(PL)||PL0;let PH=[];
 const PQ_SYS=`Você é a parceira de rotina da Maria dentro do app Like a Machine. Ela é estudante de medicina, corre e faz força, e usa um Garmin vívoactive 5.
 Responda em português do Brasil, curto: no máximo 6 linhas ou tópicos, com o próximo passo concreto para hoje.
 Regras: nunca sugira compensar com mais treino nem cortar refeição. Não fale de açúcar, doces, calorias nem fase do ciclo. Use linguagem simples, sem termos clínicos. Se ela descrever sinais que pedem avaliação, diga com calma para procurar atendimento.
@@ -929,7 +934,8 @@ function pqRender(extra){$("pqAns").innerHTML=PH.map(m=>m.role==="user"?`<div cl
 $("pqGo").addEventListener("click",async()=>{
  const q=$("pqText").value.trim();if(!q){$("pqText").focus();return}
  const k=ls(AK);
- if(!k){pqRender(`<div class="a err"><p>Para responder aqui, cole sua chave do Claude em Ajustes.</p></div>`);return}
+ if(!k){const p=`${q}\n\nDados de hoje:\n${pqCtx()}\n\nMe responda curto, em tópicos, com o próximo passo concreto para hoje. Sem compensar com treino ou cortando refeição.`;const pl=projLink();if(pl){try{navigator.clipboard.writeText(p)}catch(e){}window.open(pl,"_blank","noopener");closeSheets();toast("Pergunta copiada: cole no projeto e envie");return}
+  window.open("https://claude.ai/new?q="+encodeURIComponent(p),"_blank","noopener");closeSheets();return}
  const content=PH.length?q:`${q}\n\nDados de hoje:\n${pqCtx()}`;
  PH.push({role:"user",content,show:q});$("pqText").value="";$("pqGo").disabled=true;
  pqRender(`<div class="a wait">Pensando…</div>`);
@@ -945,6 +951,8 @@ $("pqGo").addEventListener("click",async()=>{
  finally{$("pqGo").disabled=false}
 });
 $("akSave").addEventListener("click",()=>{const v=$("akIn").value.replace(/\s+/g,"");if(!v)return;ls(AK,v);$("akIn").value="";$("akMsg").textContent=ls(AK)===v?"Chave salva neste aparelho.":"Este navegador não deixou salvar."});
+$("plSave").addEventListener("click",()=>{const v=$("plIn").value.trim();if(!/^https:\/\/claude\.ai\//.test(v)){$("plMsg").textContent="Cole um link que comece com https://claude.ai/";return}ls(PL,v);$("plIn").value="";$("plMsg").textContent="Projeto salvo neste aparelho."});
+$("plDel").addEventListener("click",()=>{ls(PL,null);$("plMsg").textContent="Projeto apagado deste aparelho."});
 $("akDel").addEventListener("click",()=>{ls(AK,null);$("akMsg").textContent="Chave apagada deste aparelho."});
 
 /* ajustes */
