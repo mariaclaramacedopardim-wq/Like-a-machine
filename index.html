@@ -66,10 +66,9 @@ p{margin:0}
 .now .nx{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;border-top:1px solid rgba(31,6,20,.2);padding-top:8px}
 .now .nx b{font-weight:600;text-align:right}
 .now .say{font-family:var(--f-disp);font-weight:700;font-size:19px;line-height:1.2;letter-spacing:-.02em}
-.ruler{position:relative;height:22px}
-.ruler::before{content:"";position:absolute;left:0;right:0;bottom:0;height:12px;background:repeating-linear-gradient(90deg,currentColor 0 1px,transparent 1px 10%);opacity:.45}
-.ruler b{position:absolute;left:0;bottom:0;height:3px;background:currentColor}
-.ruler i{position:absolute;bottom:0;width:2px;height:22px;background:currentColor}
+.load{height:12px;border-radius:99px;background:rgba(31,6,20,.14);overflow:hidden}
+.load b{display:block;height:100%;border-radius:99px;background:repeating-linear-gradient(-45deg,#1f0614 0 8px,#4a1630 8px 16px);background-size:22.6px 22.6px;animation:carrega 1.2s linear infinite;transition:width .6s ease}
+@keyframes carrega{to{background-position:22.6px 0}}
 
 .stress{display:flex;justify-content:space-between;margin:10px 12px 0;padding:8px 14px;border:1px dashed rgba(255,79,158,.5);border-radius:14px;background:rgba(255,94,168,.08);color:#c2317a;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
 .sh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:16px 20px 8px}
@@ -601,7 +600,7 @@ function renderHoje(){
    else{const last=bl[bl.length-1];html=`<div class="now"><div class="k"><span>Agora</span><span>desde ${fmtH(last[0])}</span></div><div class="ttl">${esc(last[3])}</div></div>`}
   }else{
    const b=bl[cur],a=toMin(b[0]),z=toMin(b[1]),p=Math.max(0,Math.min(1,(m-a)/(z-a))),nx=bl[cur+1];
-   html=`<div class="now"><div class="k"><span>Agora</span><span>${fmtH(b[0])} – ${fmtH(b[1])}</span></div><div class="ttl">${esc(b[3])}</div><div class="ruler"><b style="width:${p*100}%"></b><i style="left:${p*100}%"></i></div><div class="k"><span>faltam ${dur(z-m)}</span><span>${Math.round(p*100)}%</span></div>${nx?`<div class="nx"><span>Depois</span><b>${fmtH(nx[0])} · ${esc(nx[3])}</b></div>`:""}</div>`;
+   html=`<div class="now"><div class="k"><span>Agora</span><span>${fmtH(b[0])} – ${fmtH(b[1])}</span></div><div class="ttl">${esc(b[3])}</div><div class="load" role="progressbar" aria-valuenow="${Math.round(p*100)}" aria-valuemin="0" aria-valuemax="100"><b style="width:${Math.max(4,p*100)}%"></b></div><div class="k"><span>faltam ${dur(z-m)}</span><span>${Math.round(p*100)}%</span></div>${nx?`<div class="nx"><span>Depois</span><b>${fmtH(nx[0])} · ${esc(nx[3])}</b></div>`:""}</div>`;
   }
  }
  $("hNow").innerHTML=html;
