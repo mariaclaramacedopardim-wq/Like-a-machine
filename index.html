@@ -547,7 +547,7 @@ function ringsData(){
  const n=H?.noite||{},dia=(H?.data_ref===today?H?.dia:null)||{},meta=ROT?.meta_sono_h||8;
  const tPlan=Math.max(blocksFor(today).filter(b=>b[2]==="treino").length,workout(today)?1:0);
  const tDone=(dia.treinos||[]).length;
- const pm=dia.passos_meta||8000,am=dia.agua_meta_ml||2500;
+ const pm=dia.passos_meta||8000,am=ROT?.meta_agua_ml||3000;
  return[
   {k:"Sono",c:"#8e7bff",p:n.sono_h!=null?n.sono_h/meta:0,v:n.sono_h!=null?num(n.sono_h)+"/"+meta+"h":"–"},
   {k:"Passos",c:"#ff5ea8",p:dia.passos!=null?dia.passos/pm:0,v:dia.passos!=null?num(dia.passos/1000)+"/"+num(pm/1000)+" mil":"–"},
