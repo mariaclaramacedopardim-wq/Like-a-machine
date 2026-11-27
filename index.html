@@ -229,28 +229,31 @@ textarea.field{min-height:96px;resize:vertical}
 /* título do treino: quebra no "+" */
 .now .ttl{overflow-wrap:anywhere;min-width:0}
 .now>*{min-width:0}
-#tNow .now{padding:22px 20px 18px;gap:14px}
-#tNow .now .ttl{font-size:clamp(28px,8.6vw,40px);line-height:1.04}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(31,6,20,.2);padding-top:10px}
-.stats div{display:grid;gap:1px}
-.stats b{font-family:var(--f-disp);font-variation-settings:"wdth" 125;font-weight:850;font-size:clamp(15px,4.8vw,20px);letter-spacing:-.04em;white-space:nowrap}
-.stats span{font-family:var(--f-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
-/* fases e exercícios */
-.phase{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:22px 20px 10px}
-.phase h3{margin:0;font-family:var(--f-disp);font-variation-settings:"wdth" 125;font-weight:850;font-size:19px;letter-spacing:-.03em}
-.ex{margin:0 12px 8px;border-radius:22px;padding:16px;display:grid;gap:12px}
-.ex header{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center}
-.ex .n{width:30px;height:30px;border-radius:50%;background:var(--pink);color:var(--pinkfg);display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;font-weight:600}
-.ex h4{margin:0;font-family:var(--f-disp);font-weight:700;font-size:18px;line-height:1.15;letter-spacing:-.02em}
-.dose{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:6px}
-.dose div{background:rgba(29,27,46,.05);border-radius:14px;padding:9px 10px;display:grid;gap:2px}
-.dose b{font-family:var(--f-disp);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.dose span{font-family:var(--f-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
-.how{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-.how li{font-size:13.5px;line-height:1.4;color:var(--soft);padding-left:14px;position:relative}
-.how li::before{content:"";position:absolute;left:0;top:.5em;width:6px;height:6px;border-radius:50%;background:var(--pink)}
-.rest{margin:0 20px;padding:6px 0;text-align:center;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
-.legenda{margin:6px 20px 0;font-size:12px;color:var(--soft)}
+#tNow .now{padding:12px 18px;gap:8px;border-radius:22px}
+#tNow .now .ttl{font-size:clamp(20px,6.2vw,27px);line-height:1.05}
+.stats{display:flex;flex-wrap:wrap;gap:2px 14px;border-top:1px solid rgba(31,6,20,.2);padding-top:7px}
+.stats div{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.stats b{font-family:var(--f-disp);font-weight:800;font-size:15px}
+.stats span{font-family:var(--f-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;opacity:.75}
+/* fases em abas, exercícios em linhas; o toque abre os detalhes */
+.fases{display:flex;gap:4px;margin:8px 12px 0}
+.fases button{flex:1 1 auto;text-align:center;padding:7px 4px;border-radius:999px;font-family:var(--f-mono);font-size:10px;text-transform:uppercase;background:var(--glass);border:1px solid var(--gline);white-space:nowrap}
+.fases button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.plan{margin:8px 12px 0;border-radius:20px;padding:2px 14px}
+.plan>.how{padding:12px 0}
+.ex{border-bottom:1px solid var(--rule)}
+.ex:last-child{border-bottom:0}
+.ex summary{list-style:none;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:44px;padding:5px 0;cursor:pointer}
+.ex summary::-webkit-details-marker{display:none}
+.ex .n{font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--pinkdeep)}
+.ex .nm{font-family:var(--f-disp);font-weight:650;font-size:14.5px;line-height:1.15}
+.ex .ds{font-family:var(--f-mono);font-size:11.5px;font-weight:500;white-space:nowrap}
+.ex[open] .nm{color:var(--pinkdeep)}
+.ex .det{display:grid;gap:8px;padding:0 0 12px 26px}
+.how{margin:0;padding:0;list-style:none;display:grid;gap:5px}
+.how li{font-size:13.5px;line-height:1.35;color:var(--soft);padding-left:14px;position:relative}
+.how li::before{content:"";position:absolute;left:0;top:.45em;width:6px;height:6px;border-radius:50%;background:var(--pink)}
+.legenda{margin:6px 20px 0;font-size:11.5px;color:var(--soft);text-align:center}
 /* horário de deitar: a meta de cada noite fica sobre a linha */
 .bd>div,.bdk{grid-template-columns:30px minmax(0,1fr) 46px}
 .bd>div{min-height:24px}
@@ -266,6 +269,9 @@ textarea.field{min-height:96px;resize:vertical}
 .when span{background:var(--lime);border-radius:999px;padding:6px 11px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase}
 .why{font-size:13px;line-height:1.45;border-top:1px solid var(--rule);padding-top:10px}
 .why b{font-family:var(--f-mono);font-weight:600;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px;color:var(--faint)}
+
+#v-treino .chead{padding-bottom:4px}
+#v-treino .week{margin-top:6px}
 
 /* variação: menos caixas */
 .read{gap:0;margin:2px 20px 0}
@@ -319,8 +325,8 @@ textarea.field{min-height:96px;resize:vertical}
   <div class="card glass zones" id="tZones"></div>
   <div class="sh"><span class="mono ink">Carga</span></div>
   <div class="read r3" id="tCarga"></div>
- </div>
  <button class="more glass" data-go="carga"><span>Horário e intensidade que funcionam</span><span>→</span></button>
+ </div>
 </section>
 
 <section class="view" id="v-carga">
@@ -336,8 +342,8 @@ textarea.field{min-height:96px;resize:vertical}
  <div class="read r3" id="sRead"></div>
  <div class="sh"><span class="mono ink">Quanto dormiu</span><span class="mono" id="sMetaH"></span></div>
  <div class="card glass"><div class="nb" id="sDebt"></div><div class="nbk"><span style="--c:var(--lav)">bateu a meta</span><span style="--c:var(--pink)">abaixo</span><span style="--c:var(--ink)">meta</span></div></div>
- <div class="sh"><span class="mono ink">Horário de deitar</span><span class="mono">meta de cada noite no centro</span></div>
- <div class="card glass"><div class="bdk"><span></span><div><span>← mais cedo</span><b>meta</b><span>mais tarde →</span></div><span></span></div><div class="bd" id="sBed"></div></div>
+ <div class="sh"><span class="mono ink">Hora em que dormiu</span><span class="mono">vs hora de deitar</span></div>
+ <div class="card glass"><div class="bdk"><span></span><div><span>← antes</span><b>deitar</b><span>depois →</span></div><span></span></div><div class="bd" id="sBed"></div><p class="note" style="margin-top:12px">À direita: hora em que o relógio detectou o sono. No centro: hora planejada para ir para a cama.</p></div>
  <button class="more glass" data-go="regras"><span>Suas regras de sono</span><span>→</span></button>
 </section>
 
@@ -514,23 +520,33 @@ function doseOf(e){const d=[],side=e.unilateral?" / lado":"";
  if(e.hr)d.push([String(e.hr).replace("-","–"),"FC alvo"]);
  if(e.rest!=null)d.push([fmtT(e.rest),"descanso"]);
  return d}
-function exCard(e,n){const name=e.name||cap(e.type),d=doseOf(e);
- return `<article class="ex glass"><header><span class="n">${n}</span><h4>${esc(name)}</h4></header>${d.length?`<div class="dose">${d.map(([v,l])=>`<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`:""}${howHTML(notesList(e.notes,name))}</article>`}
-function phaseHTML(title,info){return `<div class="phase"><h3>${esc(title)}</h3><span class="mono">${esc(info||"")}</span></div>`}
-function easeHTML(title,x){return x?phaseHTML(title,fmtT(x.time))+`<article class="ex glass">${howHTML(notesList(x.notes))}</article>`:""}
+function doseLine(e){const side=e.unilateral?"/lado":"",p=[];
+ const q=e.reps!=null?(e.reps==="livre"?"livre":minOf(e.reps)+side):e.time!=null?fmtT(e.time)+side:e.distance!=null?String(e.distance).replace(/(\d)(k?m)$/,"$1 $2"):"";
+ if(q)p.push(e.sets?e.sets+" × "+q:q);else if(e.sets)p.push(e.sets+" séries");
+ if(e.weight!=null)p.push(minOf(e.weight)+" kg");
+ return p.join(" · ")}
+function exRow(e,n){const name=e.name||cap(e.type),l=notesList(e.notes,name);
+ if(e.rest!=null)l.unshift("Descanso: "+fmtT(e.rest));
+ if(e.hr)l.unshift("FC alvo: "+String(e.hr).replace("-","–"));
+ return `<details class="ex" name="ex"><summary><span class="n">${n}</span><span class="nm">${esc(name)}</span><span class="ds">${esc(doseLine(e))}</span></summary><div class="det">${howHTML(l.length?l:["Sem observações"])}</div></details>`}
 function flatSteps(l,out=[]){(l||[]).forEach(s=>{if(s.repeat){for(let i=0;i<s.repeat;i++)flatSteps(s.steps,out)}else out.push(s)});return out}
+function phases(w){
+ const out=[],rows=l=>l.map((e,i)=>exRow(e,i+1)).join("");
+ const ease=(tab,x)=>{if(x)out.push({tab,html:howHTML([x.time?"Duração: "+fmtT(x.time):"",...notesList(x.notes)].filter(Boolean))})};
+ if(!w)return out;
+ ease("Aquec.",w.warmup);
+ if(w.exercises)out.push({tab:"Principal",main:1,html:rows(w.exercises)});
+ (w.rounds||[]).forEach((r,i)=>out.push({tab:"Volta "+(i+1),main:i===0,html:rows(r.exercises||[])}));
+ if(w.steps)out.push({tab:"Etapas",main:1,html:rows(flatSteps(w.steps))});
+ ease("Calma",w.cooldown);
+ return out}
+let tPh=null;
 function planHTML(w){
- if(!w)return"";
- let h=easeHTML("Aquecimento",w.warmup);
- const count=l=>l.length+(l.length===1?" exercício":" exercícios");
- if(w.exercises)h+=phaseHTML("Parte principal",count(w.exercises))+w.exercises.map((e,i)=>exCard(e,i+1)).join("");
- if(w.rounds)w.rounds.forEach((r,i)=>{const l=r.exercises||[];
-  if(i&&w.rest_between_rounds)h+=`<p class="rest">Descanso entre voltas · ${esc(fmtT(w.rest_between_rounds))}</p>`;
-  h+=phaseHTML("Volta "+(i+1),count(l))+l.map((e,j)=>exCard(e,j+1)).join("")});
- if(w.steps){const l=flatSteps(w.steps);h+=phaseHTML("Fases",l.length+" etapas")+l.map((e,i)=>exCard(e,i+1)).join("")}
- h+=easeHTML("Volta à calma",w.cooldown);
- if(/RIR/.test(JSON.stringify(w)))h+=`<p class="legenda">RIR = repetições que ainda sobrariam antes da falha.</p>`;
- return h}
+ const l=phases(w);if(!l.length)return"";
+ if(tPh==null||!l[tPh])tPh=Math.max(0,l.findIndex(x=>x.main));
+ const tabs=l.length>1?`<div class="fases">${l.map((x,i)=>`<button data-fase="${i}" class="${i===tPh?"on":""}">${x.tab}</button>`).join("")}</div>`:"";
+ const hint=l[tPh].html.includes("<details")?`<p class="legenda">Toque no exercício para ver os detalhes${/RIR/.test(l[tPh].html)?" · RIR = reps sobrando":""}</p>`:"";
+ return tabs+`<div class="plan glass">${l[tPh].html}</div>`+hint}
 function wStats(w){
  if(!w)return[];
  if(w.exercises){const l=w.exercises;return[[l.length,"exercícios"],[l.reduce((a,e)=>a+(+e.sets||0),0),"séries"],[l.filter(e=>e.unilateral).length,"unilaterais"]]}
@@ -731,7 +747,7 @@ function renderTreino(){
  $("tWeek").innerHTML=h;
  const w=workout(tSel),tb=trainBlock(tSel),st=wStats(w);
  $("tNow").innerHTML=`<div class="now"><div class="k"><span>${WDL[wdOf(tSel)]}${tb&&w?" · "+fmtH(tb[0])+(tb[1]?"–"+fmtH(tb[1]):""):""}</span></div><div class="ttl">${w?nameLines(w.name):"Descanso"}</div>${w?.description?`<div class="nx"><span>${esc(w.description)}</span></div>`:""}${st.length?`<div class="stats">${st.map(([v,l])=>`<div><b>${esc(v)}</b><span>${l}</span></div>`).join("")}</div>`:""}</div>`;
- $("tEx").innerHTML=planHTML(w);
+ const ph=planHTML(w);if($("tEx").dataset.h!==ph){$("tEx").innerHTML=ph;$("tEx").dataset.h=ph}
  const Z=ROT?.zonas||[["Z1","até 134"],["Z2","135–150"],["Z3","151–165"],["Z4","166–175"],["Z5","176+"]];
  const zc=["#c9d4ff","#ff9fcb","#ff5ea8","#e0307f","#8a1450"];
  $("tZones").innerHTML=Z.map((z,i)=>`<div class="${i===1?"me":""}"><b>${z[0]}</b><i style="--c:${zc[i]};width:${30+i*14}%"></i><span>${z[1]}</span></div>`).join("");
@@ -792,7 +808,7 @@ function renderCorpo(){
  const d=today.split("-");$("cDate").textContent=WD[wdOf(today)]+", "+(+d[2])+" "+MES[+d[1]-1].slice(0,3);
  const sg=SIG[H?.semaforo],n=H?.noite||{};
  $("cNow").innerHTML=sg?`<div class="now"><div class="k"><span>Hoje</span><span>sinal do dia</span></div><div class="ttl">${sg[0]}</div>${H.semaforo_txt?`<div class="nx"><span>${esc(H.semaforo_txt)}</span></div>`:""}</div>`:"";
- $("cNight").textContent=n.deitou?n.deitou+" → "+n.acordou:"";
+ $("cNight").textContent=n.deitou?"dormiu "+n.deitou+" → "+n.acordou:"";
  const last=DI[H?.data_ref]||{};
  $("cRead").innerHTML=`<div class="glass${flags(n).sono?" alt":""}"><b>${hmB(n.sono_h)}</b><span>Dormiu${flags(n).sono?" · curto":""}</span></div><div class="glass"><b>${n.score??"–"}</b><span>Qualidade</span></div><div class="glass"><b>${last.prof!=null?hmB(last.prof/60):"–"}</b><span>Profundo</span></div><div class="glass"><b>${last.acord!=null?Math.round(last.acord):"–"}<small>min</small></b><span>Acordada</span></div>`;
  const ph=[["Profundo",last.prof,"#8e7bff"],["Leve",last.leve,"#c9d4ff"],["REM",last.rem,"#ff9fcb"],["Acordada",last.acord,"#ffd84d"]].filter(x=>x[1]!=null);
@@ -854,7 +870,8 @@ document.addEventListener("click",e=>{
  const g=e.target.closest("[data-go]");if(g){go(g.dataset.go);return}
  const o=e.target.closest("[data-open]");if(o){const s=o.dataset.open;if(s==="checkin")ckOpen(today);else if(s==="outrodia"){$("odDate").max=today;$("odDate").value=dayISO(-1);openSheet(s)}else openSheet(s);return}
  if(e.target.closest("[data-close]")||e.target===$("scrim")){closeSheets();return}
- const t=e.target.closest("[data-tday]");if(t){tSel=t.dataset.tday;renderTreino();return}
+ const t=e.target.closest("[data-tday]");if(t){tSel=t.dataset.tday;tPh=null;renderTreino();return}
+ const fa=e.target.closest("[data-fase]");if(fa){tPh=+fa.dataset.fase;renderTreino();return}
  const tt=e.target.closest("[data-ttab]");if(tt){document.querySelectorAll("[data-ttab]").forEach(b=>b.classList.toggle("on",b===tt));$("tSemana").hidden=tt.dataset.ttab!=="semana";$("tZonas").hidden=tt.dataset.ttab!=="zonas"}
 });
 function openSheet(id){document.querySelectorAll(".sheet").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("scrim").classList.add("on");$("plus").classList.toggle("x",id==="menu");document.body.dataset.sheet=id}
@@ -862,6 +879,8 @@ function closeSheets(){document.querySelectorAll(".sheet").forEach(s=>s.classLis
 $("plus").addEventListener("click",()=>{$("s-menu").classList.contains("on")?closeSheets():openSheet("menu")});
 $("odGo").addEventListener("click",()=>{const d=$("odDate").value;if(d&&d<=today)ckOpen(d)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheets()});
+
+$("tEx").addEventListener("toggle",e=>{if(e.target.open)$("tEx").querySelectorAll("details[open]").forEach(d=>{if(d!==e.target)d.open=false})},true);
 
 /* perguntar */
 const PQ=["Comi além da conta","Saiu do planejado","Treino ou descanso?","Vou dormir tarde"];
