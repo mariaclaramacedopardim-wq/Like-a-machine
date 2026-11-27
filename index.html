@@ -64,6 +64,10 @@ p{margin:0}
 .now .huge{font-family:var(--f-disp);font-variation-settings:"wdth" 125;font-weight:850;font-size:66px;letter-spacing:-.05em;line-height:.9;font-variant-numeric:tabular-nums}
 .now .nx{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;border-top:1px solid rgba(31,6,20,.2);padding-top:8px}
 .now .nx b{font-weight:600;text-align:right}
+.now.sg-amarelo{background:#ffc93c;color:#2a1c00;box-shadow:0 12px 30px rgba(242,181,0,.32)}
+.now.sg-verde{background:#4fd18b;color:#04210f;box-shadow:0 12px 30px rgba(60,196,124,.3)}
+.now.sg-vermelho{background:#ff4d73;color:#2a0410;box-shadow:0 12px 30px rgba(255,61,110,.32)}
+.now.sg-amarelo .nx,.now.sg-verde .nx,.now.sg-vermelho .nx{border-top-color:rgba(0,0,0,.18)}
 .now .say{font-family:var(--f-disp);font-weight:700;font-size:19px;line-height:1.2;letter-spacing:-.02em}
 .load{height:12px;border-radius:99px;background:rgba(31,6,20,.14);overflow:hidden}
 .load b{display:block;height:100%;border-radius:99px;background:#1f0614;transition:width .6s ease}
@@ -80,7 +84,14 @@ p{margin:0}
 .read span{font-family:var(--f-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
 .read .hot b{color:var(--pinkdeep)}
 .read .alt{background:#ffe7a3;border-color:#f2b500;box-shadow:inset 0 0 0 1.5px #f2b500}
-.read .alt b,.read .alt b small,.read .alt span{color:#7a4f00}
+.read .alt b,.read .alt b small,.read .alt span,.read .alt em{color:#7a4f00}
+.read em{font-style:normal;font-family:var(--f-mono);font-size:8.5px;line-height:1.3;letter-spacing:0;display:block}
+.pqa{display:grid;gap:10px;font-size:15px;line-height:1.45}
+.pqa .q{justify-self:end;max-width:85%;background:var(--ink);color:#fff;padding:9px 13px;border-radius:18px 18px 4px 18px;font-size:14px}
+.pqa .a{background:rgba(255,255,255,.9);border:1px solid var(--gline);padding:12px 14px;border-radius:18px 18px 18px 4px;display:grid;gap:8px}
+.pqa .a ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.pqa .a.wait{color:var(--soft);font-style:italic}
+.pqa .a.err{color:var(--pinkdeep)}
 .nb{display:grid;gap:9px}
 .nb>div{display:grid;grid-template-columns:34px 1fr 52px;align-items:center;gap:8px}
 .nb span,.bd span{font-family:var(--f-mono);font-size:10px;color:var(--faint);text-transform:uppercase}
@@ -304,7 +315,8 @@ textarea.field{min-height:96px;resize:vertical}
  <div class="pair" id="hPair"></div>
  <div class="card glass dica" id="hDica"></div>
  <button class="ci" data-open="checkin"><strong id="ciTxt">Como foi seu dia?</strong><span id="ciChip">Responder</span></button>
- <button class="more glass" data-go="linha"><span>Linha do dia</span><span>→</span></button>
+ <div class="sh"><span class="mono ink">Linha do dia</span><span class="mono" id="hLDate"></span></div>
+ <div class="card glass list" id="hLinha"></div>
 </section>
 
 <section class="view" id="v-linha">
@@ -426,8 +438,9 @@ textarea.field{min-height:96px;resize:vertical}
  <div class="grab"></div>
  <div class="shead"><span class="stitle">Perguntar</span><button class="x" data-close aria-label="Fechar">×</button></div>
  <div class="chips" id="pqChips"></div>
+ <div class="pqa" id="pqAns"></div>
  <textarea class="field" id="pqText" placeholder="Escreva aqui"></textarea>
- <div class="sfoot"><span class="note">Abre no Claude</span><button class="btn pink" id="pqGo">Perguntar →</button></div>
+ <div class="sfoot"><span class="note" id="pqNote">Responde aqui mesmo</span><button class="btn pink" id="pqGo">Perguntar →</button></div>
 </div>
 
 <div class="sheet" id="s-ajustes" role="dialog" aria-label="Ajustes">
@@ -437,6 +450,11 @@ textarea.field{min-height:96px;resize:vertical}
   <input class="field" id="tokIn" type="password" autocomplete="off" placeholder="github_pat_…">
   <p class="note" id="tokMsg"></p>
   <div class="row2"><button class="btn" id="tokSave">Salvar</button><button class="btn ghost" id="tokDel">Apagar</button></div>
+ </div>
+ <div class="grp"><span class="mono ink">Chave do Claude</span>
+  <input class="field" id="akIn" type="password" autocomplete="off" placeholder="sk-ant-…">
+  <p class="note" id="akMsg"></p>
+  <div class="row2"><button class="btn" id="akSave">Salvar</button><button class="btn ghost" id="akDel">Apagar</button></div>
  </div>
  <div class="grp"><span class="mono ink">Backup do check-in</span>
   <div class="row2"><button class="btn" id="bkCopy">Copiar</button><button class="btn ghost" id="bkDown">Baixar</button></div>
@@ -698,6 +716,11 @@ function flags(n){const meta=ROT?.meta_sono_h||8,hb=n.hrv_base||[],f={};
  if(n.fc_rep!=null&&n.fc_base!=null&&n.fc_rep>n.fc_base+3)f.fc="alta";
  if(n.bb_acordar!=null&&n.bb_acordar<45)f.bb="baixa";
  return f}
+function refs(n){const m=H?.medias||{},hb=n.hrv_base||[];return{
+ sono:"meta "+(ROT?.meta_sono_h||8)+"h",
+ hrv:(m.hrv_7!=null?"média "+Math.round(m.hrv_7):"")+(hb.length?(m.hrv_7!=null?" · ":"")+"faixa "+hb[0]+"–"+hb[1]:""),
+ fc:n.fc_base!=null?"normal "+Math.round(n.fc_base):"",
+ bb:"bom: 70+"}}
 function renderHoje(){
  renderRings();
  const d=today.split("-");$("hDay").textContent=+d[2];
@@ -724,12 +747,14 @@ function renderHoje(){
  $("hNow").innerHTML=html;
  const n=H?.noite||{},sg=SIG[H?.semaforo];
  $("hSig").textContent=sg?sg[0]:"";$("hSig").style.setProperty("--c",sg?sg[1]:"#9a95ad");$("hSig").hidden=!sg;
- const fl=flags(n),t=(k,b,l)=>`<div class="glass${fl[k]?" alt":""}"><b>${b}</b><span>${l}${fl[k]?" · "+fl[k]:""}</span></div>`;
+ const fl=flags(n),rf=refs(n),t=(k,b,l)=>`<div class="glass${fl[k]?" alt":""}"><b>${b}</b><span>${l}${fl[k]?" · "+fl[k]:""}</span>${fl[k]&&rf[k]?`<em>${rf[k].replace(" · ","<br>")}</em>`:""}</div>`;
  $("hRead").innerHTML=t("sono",hmB(n.sono_h),"Sono")+t("hrv",(n.hrv??"–")+"<small>ms</small>","HRV")+t("fc",n.fc_rep??"–","FC rep.")+t("bb",n.bb_acordar??"–","Bateria");
  const w=workout(today),tb=trainBlock(today),tm=dayISO(1),w2=workout(tm),b2=blocksFor(tm)[0];
  $("hPair").innerHTML=`<button class="glass" data-go="treino"><span class="mono">Treino${w&&tb?" · "+fmtH(tb[0]):""}</span><strong>${w?esc(nameTxt(w.name)):"Descanso"}</strong><small>${w?esc(wDur(w)):"caminhada leve"}</small></button>
  <button class="glass" data-go="sono"><span class="mono">Amanhã · ${WDL[wdOf(tm)]}</span><strong>${w2?esc(nameTxt(w2.name)):"Sem treino"}</strong><small>${b2?"acorda "+fmtH(b2[0]):""}</small></button>`;
  renderDica();
+ const lb=blocksFor(today),lm=nowMin();$("hLDate").textContent=WD[wdOf(today)]+" "+dShort(today);
+ $("hLinha").innerHTML=lb.length?lb.map(b=>{const a=toMin(b[0]),z=b[1]?toMin(b[1]):a+1;const st=z<=lm?"dim":(a<=lm&&z>lm?"cur":"");return `<div class="${st}"><span>${esc(b[3])}</span><b>${fmtH(b[0])}${b[1]?"–"+fmtH(b[1]):""}</b></div>`}).join(""):`<p class="empty">Sem agenda</p>`;
  const done=!!ckAll()[today];
  $("ciTxt").textContent=done?"Check-in feito":"Como foi seu dia?";$("ciChip").textContent=done?"Editar":"Responder";$("mCi").textContent=done?"Editar respostas":"Responder";
 }
@@ -807,7 +832,7 @@ function renderSono(){
 function renderCorpo(){
  const d=today.split("-");$("cDate").textContent=WD[wdOf(today)]+", "+(+d[2])+" "+MES[+d[1]-1].slice(0,3);
  const sg=SIG[H?.semaforo],n=H?.noite||{};
- $("cNow").innerHTML=sg?`<div class="now"><div class="k"><span>Hoje</span><span>sinal do dia</span></div><div class="ttl">${sg[0]}</div>${H.semaforo_txt?`<div class="nx"><span>${esc(H.semaforo_txt)}</span></div>`:""}</div>`:"";
+ $("cNow").innerHTML=sg?`<div class="now sg-${H.semaforo}"><div class="k"><span>Hoje</span><span>sinal do dia</span></div><div class="ttl">${sg[0]}</div>${H.semaforo_txt?`<div class="nx"><span>${esc(H.semaforo_txt)}</span></div>`:""}</div>`:"";
  $("cNight").textContent=n.deitou?"dormiu "+n.deitou+" → "+n.acordou:"";
  const last=DI[H?.data_ref]||{};
  $("cRead").innerHTML=`<div class="glass${flags(n).sono?" alt":""}"><b>${hmB(n.sono_h)}</b><span>Dormiu${flags(n).sono?" · curto":""}</span></div><div class="glass"><b>${n.score??"–"}</b><span>Qualidade</span></div><div class="glass"><b>${last.prof!=null?hmB(last.prof/60):"–"}</b><span>Profundo</span></div><div class="glass"><b>${last.acord!=null?Math.round(last.acord):"–"}<small>min</small></b><span>Acordada</span></div>`;
@@ -816,8 +841,8 @@ function renderCorpo(){
  $("cPhases").hidden=!tot;
  $("cPhases").innerHTML=tot?`<div class="phases">${ph.map(x=>`<i style="width:${x[1]/tot*100}%;background:${x[2]}"></i>`).join("")}</div><div class="legend">${ph.map(x=>`<span style="--c:${x[2]}">${x[0]} ${Math.round(x[1])}′</span>`).join("")}</div>`:"";
  const hb=n.hrv_base||[];
- const hrvT=n.hrv==null?"":hb.length&&n.hrv<hb[0]?"abaixo da sua faixa: treino leve":hb.length&&n.hrv>hb[1]?"acima da faixa: bom dia para treinar":["UNBALANCED","LOW","POOR"].includes(n.hrv_status)?"fora do seu padrão: treino leve":"dentro da sua faixa: treino mantido";
- const fcT=n.fc_rep==null||n.fc_base==null?"":n.fc_rep>n.fc_base+3?"acima do normal: sinal de cansaço":"no seu normal";
+ const rf=refs(n),hrvT=n.hrv==null?"":(hb.length&&n.hrv<hb[0]?"abaixo da sua faixa: treino leve":hb.length&&n.hrv>hb[1]?"acima da faixa: bom dia para treinar":["UNBALANCED","LOW","POOR"].includes(n.hrv_status)?"fora do seu padrão: treino leve":"dentro da sua faixa: treino mantido")+(rf.hrv?" ("+rf.hrv+")":"");
+ const fcT=n.fc_rep==null||n.fc_base==null?"":n.fc_rep>n.fc_base+3?"acima do seu normal ("+Math.round(n.fc_base)+"): sinal de cansaço":"no seu normal ("+Math.round(n.fc_base)+")";
  const bb=n.bb_acordar,bbT=bb==null?"":bb>=70?"energia para o dia todo":bb>=45?"energia até a tarde":"tanque baixo: poupe energia";
  $("cEff").innerHTML=`<div><span>HRV</span><b>${n.hrv??"–"} ms</b><i>${hrvT}</i></div><div><span>FC repouso</span><b>${n.fc_rep??"–"} bpm</b><i>${fcT}</i></div><div><span>Bateria ao acordar</span><b>${bb??"–"}</b><i>${bbT}</i></div>`;
  const dep=deitar(today),b2=blocksFor(dayISO(1))[0];
@@ -874,7 +899,7 @@ document.addEventListener("click",e=>{
  const fa=e.target.closest("[data-fase]");if(fa){tPh=+fa.dataset.fase;renderTreino();return}
  const tt=e.target.closest("[data-ttab]");if(tt){document.querySelectorAll("[data-ttab]").forEach(b=>b.classList.toggle("on",b===tt));$("tSemana").hidden=tt.dataset.ttab!=="semana";$("tZonas").hidden=tt.dataset.ttab!=="zonas"}
 });
-function openSheet(id){document.querySelectorAll(".sheet").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("scrim").classList.add("on");$("plus").classList.toggle("x",id==="menu");document.body.dataset.sheet=id}
+function openSheet(id){document.querySelectorAll(".sheet").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("scrim").classList.add("on");$("plus").classList.toggle("x",id==="menu");document.body.dataset.sheet=id;if(id==="ajustes")$("akMsg").textContent=ls(AK)?"Chave salva neste aparelho.":"Cole a chave para o Perguntar responder aqui."}
 function closeSheets(){document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));$("scrim").classList.remove("on");$("plus").classList.remove("x");delete document.body.dataset.sheet}
 $("plus").addEventListener("click",()=>{$("s-menu").classList.contains("on")?closeSheets():openSheet("menu")});
 $("odGo").addEventListener("click",()=>{const d=$("odDate").value;if(d&&d<=today)ckOpen(d)});
@@ -886,13 +911,41 @@ $("tEx").addEventListener("toggle",e=>{if(e.target.open)$("tEx").querySelectorAl
 const PQ=["Comi além da conta","Saiu do planejado","Treino ou descanso?","Vou dormir tarde"];
 $("pqChips").innerHTML=PQ.map(q=>`<button data-pq="${q}">${q}</button>`).join("");
 $("pqChips").addEventListener("click",e=>{const b=e.target.closest("[data-pq]");if(!b)return;document.querySelectorAll("[data-pq]").forEach(x=>x.classList.toggle("on",x===b));$("pqText").value=b.dataset.pq});
-$("pqGo").addEventListener("click",()=>{
+const AK="lamClaudeKey";let PH=[];
+const PQ_SYS=`Você é a parceira de rotina da Maria dentro do app Like a Machine. Ela é estudante de medicina, corre e faz força, e usa um Garmin vívoactive 5.
+Responda em português do Brasil, curto: no máximo 6 linhas ou tópicos, com o próximo passo concreto para hoje.
+Regras: nunca sugira compensar com mais treino nem cortar refeição. Não fale de açúcar, doces, calorias nem fase do ciclo. Use linguagem simples, sem termos clínicos. Se ela descrever sinais que pedem avaliação, diga com calma para procurar atendimento.
+Use os dados do dia que vêm junto com a pergunta.`;
+function pqCtx(){
+ const n=H?.noite||{},md=H?.medias||{},w=workout(today),dep=deitar(today),m=nowMin(),bl=blocksFor(today),cur=bl.find(b=>b[1]&&toMin(b[0])<=m&&toMin(b[1])>m),fl=flags(n),rf=refs(n);
+ const alt=Object.keys(fl).map(k=>({sono:"sono",hrv:"HRV",fc:"FC de repouso",bb:"bateria"}[k]+" "+fl[k]+(rf[k]?" ("+rf[k]+")":""))).join(", ");
+ return [`Agora são ${fmtMin(m)} de ${WDL[wdOf(today)]}, ${dShort(today)}.`,H?.semaforo?`Sinal do dia: ${H.semaforo}${H.semaforo_txt?" — "+H.semaforo_txt.replace(/\.$/,""):""}.`:"",
+  n.sono_h!=null?`Noite: dormiu ${hmTxt(n.sono_h)} (meta ${ROT?.meta_sono_h||8}h), HRV ${n.hrv} ms, FC repouso ${n.fc_rep}, bateria ao acordar ${n.bb_acordar}.`:"",
+  alt?`Fora do normal: ${alt}.`:"",md.sono_7!=null?`Média 7 dias: sono ${hmTxt(md.sono_7)}, HRV ${Math.round(md.hrv_7)} ms, FC ${Math.round(md.fc_7)}.`:"",
+  `Treino de hoje: ${w?w.name+(w.description?" ("+w.description+")":""):"descanso"}.`,cur?`Agora: ${cur[3]}.`:"",
+  bl.length?`Agenda: ${bl.map(b=>fmtH(b[0])+" "+b[3]).join("; ")}.`:"",dep?`Deitar às ${fmtH(dep[0])}.`:""].filter(Boolean).join("\n")}
+function mdLite(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").split(/\n{2,}/).map(p=>{const ls_=p.split("\n");if(ls_.every(l=>/^\s*([-•*]|\d+\.)\s/.test(l)))return "<ul>"+ls_.map(l=>"<li>"+l.replace(/^\s*([-•*]|\d+\.)\s/,"")+"</li>").join("")+"</ul>";return "<p>"+p.replace(/\n/g,"<br>")+"</p>"}).join("")}
+function pqRender(extra){$("pqAns").innerHTML=PH.map(m=>m.role==="user"?`<div class="q">${esc(m.show)}</div>`:`<div class="a">${mdLite(m.content)}</div>`).join("")+(extra||"")}
+$("pqGo").addEventListener("click",async()=>{
  const q=$("pqText").value.trim();if(!q){$("pqText").focus();return}
- const n=H?.noite||{},w=workout(today),dep=deitar(today),m=nowMin(),cur=blocksFor(today).find(b=>b[1]&&toMin(b[0])<=m&&toMin(b[1])>m);
- const ctx=[`Agora são ${fmtMin(m)} de ${WDL[wdOf(today)]}.`,H?.semaforo?`Sinal do dia: ${H.semaforo}.`:"",n.sono_h!=null?`Dormi ${hmTxt(n.sono_h)}, HRV ${n.hrv} ms, bateria ${n.bb_acordar}.`:"",`Treino de hoje: ${w?w.name:"descanso"}.`,cur?`Agora: ${cur[3]}.`:"",dep?`Deito às ${fmtH(dep[0])}.`:""].filter(Boolean).join(" ");
- const p=`${q}\n\n${ctx}\n\nMe responda curto, em tópicos, com o próximo passo concreto para hoje. Sem compensar com treino ou cortando refeição.`;
- window.open("https://claude.ai/new?q="+encodeURIComponent(p),"_blank","noopener");closeSheets();
+ const k=ls(AK);
+ if(!k){pqRender(`<div class="a err"><p>Para responder aqui, cole sua chave do Claude em Ajustes.</p></div>`);return}
+ const content=PH.length?q:`${q}\n\nDados de hoje:\n${pqCtx()}`;
+ PH.push({role:"user",content,show:q});$("pqText").value="";$("pqGo").disabled=true;
+ pqRender(`<div class="a wait">Pensando…</div>`);
+ try{
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":k,"anthropic-version":"2026-10-21","anthropic-beta":"server-side-fallback-2026-07-01","anthropic-dangerous-direct-browser-access":"true","content-type":"application/json"},
+   body:JSON.stringify({model:"claude-opus-5-5",max_tokens:4000,output_config:{effort:"low"},fallbacks:"default",system:PQ_SYS,messages:PH.map(m=>({role:m.role,content:m.content}))})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){PH.pop();const msg=r.status===401?"A chave foi recusada. Confira em Ajustes.":r.status===429?"Muitas perguntas seguidas. Espere um minuto.":(j?.error?.message||"").match(/credit|balance/i)?"Sem crédito na conta da API. Adicione em console.anthropic.com.":"Não consegui responder agora ("+r.status+").";pqRender(`<div class="a err"><p>${esc(msg)}</p></div>`);$("pqText").value=q;return}
+  if(j.stop_reason==="refusal"){PH.pop();pqRender(`<div class="a err"><p>Não consegui responder essa. Tente escrever de outro jeito.</p></div>`);return}
+  const txt=(j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim()||"…";
+  PH.push({role:"assistant",content:txt});pqRender();
+ }catch(e){PH.pop();$("pqText").value=q;pqRender(`<div class="a err"><p>Sem conexão. Tente de novo.</p></div>`)}
+ finally{$("pqGo").disabled=false}
 });
+$("akSave").addEventListener("click",()=>{const v=$("akIn").value.replace(/\s+/g,"");if(!v)return;ls(AK,v);$("akIn").value="";$("akMsg").textContent=ls(AK)===v?"Chave salva neste aparelho.":"Este navegador não deixou salvar."});
+$("akDel").addEventListener("click",()=>{ls(AK,null);$("akMsg").textContent="Chave apagada deste aparelho."});
 
 /* ajustes */
 $("tokSave").addEventListener("click",()=>{const v=$("tokIn").value.replace(/\s+/g,"");if(!v)return;ls(TK,v);$("tokIn").value="";if(ls(TK)!==v){setStatus("Este navegador não deixou salvar o token. Saia do modo privado e tente de novo.",true);return}setStatus("Conectando…");closeSheets();load()});
