@@ -254,12 +254,10 @@ textarea.field{min-height:96px;resize:vertical}
 .plan>.how{padding:12px 0}
 .ex{border-bottom:1px solid var(--rule)}
 .ex:last-child{border-bottom:0}
-.ex summary{list-style:none;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:44px;padding:5px 0;cursor:pointer}
-.ex summary::-webkit-details-marker{display:none}
+.ex .sm{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:44px;padding:5px 0}
 .ex .n{font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--pinkdeep)}
 .ex .nm{font-family:var(--f-disp);font-weight:650;font-size:14.5px;line-height:1.15}
 .ex .ds{font-family:var(--f-mono);font-size:11.5px;font-weight:500;white-space:nowrap}
-.ex[open] .nm{color:var(--pinkdeep)}
 .ex .det{display:grid;gap:8px;padding:0 0 12px 26px}
 .how{margin:0;padding:0;list-style:none;display:grid;gap:5px}
 .how li{font-size:13.5px;line-height:1.35;color:var(--soft);padding-left:14px;position:relative}
@@ -551,7 +549,7 @@ function doseLine(e){const side=e.unilateral?"/lado":"",p=[];
 function exRow(e,n){const name=e.name||cap(e.type),l=notesList(e.notes,name);
  if(e.rest!=null)l.unshift("Descanso: "+fmtT(e.rest));
  if(e.hr)l.unshift("FC alvo: "+String(e.hr).replace("-","–"));
- return `<details class="ex" name="ex"><summary><span class="n">${n}</span><span class="nm">${esc(name)}</span><span class="ds">${esc(doseLine(e))}</span></summary><div class="det">${howHTML(l.length?l:["Sem observações"])}</div></details>`}
+ return `<div class="ex"><div class="sm"><span class="n">${n}</span><span class="nm">${esc(name)}</span><span class="ds">${esc(doseLine(e))}</span></div>${l.length?`<div class="det">${howHTML(l)}</div>`:""}</div>`}
 function flatSteps(l,out=[]){(l||[]).forEach(s=>{if(s.repeat){for(let i=0;i<s.repeat;i++)flatSteps(s.steps,out)}else out.push(s)});return out}
 function phases(w){
  const out=[],rows=l=>l.map((e,i)=>exRow(e,i+1)).join("");
@@ -568,7 +566,7 @@ function planHTML(w){
  const l=phases(w);if(!l.length)return"";
  if(tPh==null||!l[tPh])tPh=Math.max(0,l.findIndex(x=>x.main));
  const tabs=l.length>1?`<div class="fases">${l.map((x,i)=>`<button data-fase="${i}" class="${i===tPh?"on":""}">${x.tab}</button>`).join("")}</div>`:"";
- const hint=l[tPh].html.includes("<details")?`<p class="legenda">Toque no exercício para ver os detalhes${/RIR/.test(l[tPh].html)?" · RIR = reps sobrando":""}</p>`:"";
+ const hint=/RIR/.test(l[tPh].html)?`<p class="legenda">RIR = reps sobrando</p>`:"";
  return tabs+`<div class="plan glass">${l[tPh].html}</div>`+hint}
 function wStats(w){
  if(!w)return[];
@@ -910,7 +908,6 @@ $("plus").addEventListener("click",()=>{$("s-menu").classList.contains("on")?clo
 $("odGo").addEventListener("click",()=>{const d=$("odDate").value;if(d&&d<=today)ckOpen(d)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheets()});
 
-$("tEx").addEventListener("toggle",e=>{if(e.target.open)$("tEx").querySelectorAll("details[open]").forEach(d=>{if(d!==e.target)d.open=false})},true);
 
 /* perguntar */
 const PQ=["Comi além da conta","Saiu do planejado","Treino ou descanso?","Vou dormir tarde"];
