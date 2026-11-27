@@ -68,6 +68,11 @@ p{margin:0}
 .now.sg-verde{background:#4fd18b;color:#04210f;box-shadow:0 12px 30px rgba(60,196,124,.3)}
 .now.sg-vermelho{background:#ff4d73;color:#2a0410;box-shadow:0 12px 30px rgba(255,61,110,.32)}
 .now.sg-amarelo .nx,.now.sg-verde .nx,.now.sg-vermelho .nx{border-top-color:rgba(0,0,0,.18)}
+.now .lg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.now .lg div{display:grid;gap:2px;background:rgba(255,255,255,.22);border-radius:14px;padding:9px 11px}
+.now .lg b{font-family:var(--f-disp);font-weight:800;font-size:20px;letter-spacing:-.02em}
+.now .lg span{font-size:11.5px;line-height:1.3}
+.now .why2{font-size:13px;line-height:1.35;opacity:.85}
 .now .say{font-family:var(--f-disp);font-weight:700;font-size:19px;line-height:1.2;letter-spacing:-.02em}
 .load{height:12px;border-radius:99px;background:rgba(31,6,20,.14);overflow:hidden}
 .load b{display:block;height:100%;border-radius:99px;background:#1f0614;transition:width .6s ease}
@@ -771,7 +776,7 @@ function renderHoje(){
  $("hRead").innerHTML=t("sono",hmB(n.sono_h),"Sono")+t("hrv",(n.hrv??"–")+"<small>ms</small>","HRV")+t("fc",n.fc_rep??"–","FC rep.")+t("bb",n.bb_acordar??"–","Bateria");
  const w=workout(today),tb=trainBlock(today),tm=dayISO(1),w2=workout(tm),b2=blocksFor(tm)[0];
  $("hPair").innerHTML=`<button class="glass" data-go="treino"><span class="mono">Treino${w&&tb?" · "+fmtH(tb[0]):""}</span><strong>${w?esc(nameTxt(w.name)):"Descanso"}</strong><small>${w?esc(wDur(w)):"caminhada leve"}</small></button>
- <button class="glass" data-go="sono"><span class="mono">Amanhã · ${WDL[wdOf(tm)]}</span><strong>${w2?esc(nameTxt(w2.name)):"Sem treino"}</strong><small>${b2?"acorda "+fmtH(b2[0]):""}</small></button>`;
+ <button class="glass" data-go="sono"><span class="mono">Amanhã · ${WDL[wdOf(tm)]}</span><strong>${w2?esc(nameTxt(w2.name)):"Sem treino"}</strong><small>${b2?"acorda "+fmtH(b2[0])+" · deitar "+fmtMin(sleepRec(today).rec):""}</small></button>`;
  renderDica();
  const lb=blocksFor(today),lm=nowMin();$("hLDate").textContent=WD[wdOf(today)]+" "+dShort(today);
  $("hLinha").innerHTML=lb.length?lb.map(b=>{const a=toMin(b[0]),z=b[1]?toMin(b[1]):a+1;const st=z<=lm?"dim":(a<=lm&&z>lm?"cur":"");return `<div class="${st}"><span>${esc(b[3])}</span><b>${fmtH(b[0])}${b[1]?"–"+fmtH(b[1]):""}</b></div>`}).join(""):`<p class="empty">Sem agenda</p>`;
@@ -830,10 +835,25 @@ function ruleWhen(k){
  return[]}
 function ruleHTML(r,i){const d=REGRA_D.find(x=>x[0].test(r)),w=d?ruleWhen(d[1]):[];
  return `<article class="rule glass"><header><span class="n">${i+1}</span><h3>${esc(r)}</h3></header>${w.length?`<div class="when">${w.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}${d?howHTML(d[2])+`<p class="why"><b>Por quê</b>${esc(d[3])}</p>`:""}</article>`}
+function sleepRec(iso){
+ const tm=dayISO(1,iso),meta=ROT?.meta_sono_h||8,b2=blocksFor(tm)[0];
+ const wake=(b2?toMin(b2[0]):wdOf(tm)===6?290:360)+1440,dep=deitar(iso);
+ let plan=toMin(dep?dep[0]:"22:00");if(plan<720)plan+=1440;
+ const bt=nights().filter(x=>x.ini).map(x=>bedMin(x.ini)).sort((a,b)=>a-b);
+ const anchor=bt.length?bt[Math.floor(bt.length/2)]:plan;
+ const goal=wake-(meta*60+15);
+ let rec=Math.max(goal,anchor-120);if(rec>plan)rec=plan;rec=Math.round(rec/15)*15;
+ const slp=b=>wake-b-15;
+ let why;
+ if(rec===plan&&slp(plan)>=meta*60-10)why=`Seu horário de sempre já dá ${dur(slp(plan))} de sono.`;
+ else if(rec<=goal+10)why=`Assim você dorme ${meta}h e acorda às ${fmtMin(wake)}, sem fugir muito do seu horário de costume.`;
+ else why=`Para dormir ${meta}h seria ${fmtMin(goal)}. ${fmtMin(rec)} é o mais perto disso sem se afastar mais de 2h do seu horário habitual.`;
+ return{rec,goal,plan,anchor,wake,meta,sRec:slp(rec),sPlan:slp(plan),why}}
 function renderSono(){
  const des=blocksFor(today).find(b=>b[3]==="Desacelerar"),dep=deitar(today),tm=dayISO(1),b2=blocksFor(tm)[0],w2=workout(tm);
  const bed=dep?dep[0]:"22:00";
- $("sNow").innerHTML=`<div class="now"><div class="k"><span>Deitar</span><span>${des?"desacelerar "+fmtH(des[0]):""}</span></div><div class="huge">${bed.replace(/^0/,"")}</div><div class="nx"><span>Amanhã</span><b>${b2?"acorda "+fmtH(b2[0]):""}${w2?" · "+esc(nameTxt(w2.name)):""}</b></div></div>`;
+ const sr=sleepRec(today),rr=fmtMin(sr.rec);
+ $("sNow").innerHTML=`<div class="now"><div class="k"><span>Deitar às</span><span>desacelerar ${fmtMin(sr.rec-45)}</span></div><div class="huge">${rr.replace("h",":").replace(/:$/,":00")}</div><div class="k"><span>acorda ${fmtMin(sr.wake)}</span><span></span></div><div class="lg"><div><b>${dur(sr.sRec)}</b><span>de sono · ${sr.sRec>=sr.meta*60-5?"bate a meta":dur(sr.meta*60-sr.sRec)+" abaixo da meta de "+sr.meta+"h"}</span></div><div><b>${Math.abs(sr.rec-sr.anchor)<10?"igual":dur(Math.abs(sr.rec-sr.anchor))}</b><span>${Math.abs(sr.rec-sr.anchor)<10?"ao":sr.rec<sr.anchor?"antes do":"depois do"} seu horário habitual (${fmtMin(sr.anchor)})</span></div></div><p class="why2">${esc(sr.why)}</p><div class="nx"><span>Pela agenda</span><b>${fmtMin(sr.plan)} · ${dur(sr.sPlan)} de sono</b></div><div class="nx"><span>Para bater ${sr.meta}h</span><b>${fmtMin(sr.goal)}</b></div><div class="nx"><span>Amanhã</span><b>${w2?esc(nameTxt(w2.name)):"Sem treino"}</b></div></div>`;
  const all=nights(),ns=all.filter(x=>x.sono!=null),meta=ROT?.meta_sono_h||8;
  const avg=ns.length?ns.reduce((a,x)=>a+x.sono,0)/ns.length:H?.medias?.sono_7;
  const debt=ns.reduce((a,x)=>a+(x.sono-meta),0);
@@ -867,7 +887,7 @@ function renderCorpo(){
  $("cEff").innerHTML=`<div><span>HRV</span><b>${n.hrv??"–"} ms</b><i>${hrvT}</i></div><div><span>FC repouso</span><b>${n.fc_rep??"–"} bpm</b><i>${fcT}</i></div><div><span>Bateria ao acordar</span><b>${bb??"–"}</b><i>${bbT}</i></div>`;
  const dep=deitar(today),b2=blocksFor(dayISO(1))[0];
  let act=H?.sugestoes?.[0]?.titulo||"";
- if(dep&&b2&&toMin(b2[0])<6*60)act="Deitar até "+fmtH(dep[0])+": amanhã acorda "+fmtH(b2[0]);
+ {const sr=sleepRec(today);if(sr.rec<sr.plan||sr.wake-1440<360)act="Deitar às "+fmtMin(sr.rec)+": amanhã acorda "+fmtMin(sr.wake)}
  $("cTip").hidden=!act;$("cTip").innerHTML=`<span class="mono">Para hoje</span><p>${esc(act)}</p>`;
 }
 /* hábitos */
@@ -958,7 +978,7 @@ function pqCtx(){
   n.sono_h!=null?`Noite: dormiu ${hmTxt(n.sono_h)} (meta ${ROT?.meta_sono_h||8}h), HRV ${n.hrv} ms, FC repouso ${n.fc_rep}, bateria ao acordar ${n.bb_acordar}.`:"",
   alt?`Fora do normal: ${alt}.`:"",md.sono_7!=null?`Média 7 dias: sono ${hmTxt(md.sono_7)}, HRV ${Math.round(md.hrv_7)} ms, FC ${Math.round(md.fc_7)}.`:"",
   `Treino de hoje: ${w?w.name+(w.description?" ("+w.description+")":""):"descanso"}.`,cur?`Agora: ${cur[3]}.`:"",
-  bl.length?`Agenda: ${bl.map(b=>fmtH(b[0])+" "+b[3]).join("; ")}.`:"",dep?`Deitar às ${fmtH(dep[0])}.`:""].filter(Boolean).join("\n")}
+  bl.length?`Agenda: ${bl.map(b=>fmtH(b[0])+" "+b[3]).join("; ")}.`:"",`Deitar recomendado: ${fmtMin(sleepRec(today).rec)} (agenda ${fmtH(dep?dep[0]:"22:00")}).`].filter(Boolean).join("\n")}
 function mdLite(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").split(/\n{2,}/).map(p=>{const ls_=p.split("\n");if(ls_.every(l=>/^\s*([-•*]|\d+\.)\s/.test(l)))return "<ul>"+ls_.map(l=>"<li>"+l.replace(/^\s*([-•*]|\d+\.)\s/,"")+"</li>").join("")+"</ul>";return "<p>"+p.replace(/\n/g,"<br>")+"</p>"}).join("")}
 function pqRender(extra){$("pqAns").innerHTML=PH.map(m=>m.role==="user"?`<div class="q">${esc(m.show)}</div>`:`<div class="a">${mdLite(m.content)}</div>`).join("")+(extra||"")}
 $("pqGo").addEventListener("click",async()=>{
