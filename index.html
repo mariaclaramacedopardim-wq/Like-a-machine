@@ -414,7 +414,7 @@ function cap(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1)}
 
 /* dados */
 async function gh(path,raw){
- const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${encodeURI(path)}`,{headers:{Authorization:"Bearer "+ls(TK),Accept:"application/vnd.github.raw+json"},cache:"no-store"});
+ const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${encodeURI(path)}`,{headers:{Authorization:"Bearer "+ls(TK).trim(),Accept:"application/vnd.github.raw+json"},cache:"no-store"});
  if(r.status===404)return null;
  if(!r.ok)throw Object.assign(new Error("http "+r.status),{status:r.status});
  return raw?r.text():r.json();
@@ -458,10 +458,19 @@ async function load(){
  ROT=cacheGet("rotina");H=cacheGet("hoje");SEM=cacheGet("semana");AG=cacheGet("agenda");TR=cacheGet("treinos")||{};DI=cacheGet("diario")||{};EV=cacheGet("eventos")||[];
  renderAll();
  if(!ls(TK)){openSheet("ajustes");$("tokMsg").textContent="Cole o token para ver seus dados.";return}
+ let step="conexão";
  try{
-  const [h,s,e,ro,agTxt]=await Promise.all([gh("data/app/hoje.json"),gh("data/app/semana.json"),gh("data/app/eventos.json"),gh("data/app/rotina.json"),gh("treinos/agenda/semana.yaml",true)]);
-  if(h){H=h;cacheSet("hoje",h)} if(s){SEM=s;cacheSet("semana",s)} if(e){EV=e.eventos||[];cacheSet("eventos",EV)} if(ro){ROT=ro;cacheSet("rotina",ro)}
-  if(agTxt&&window.jsyaml){AG=jsyaml.load(agTxt,{schema:jsyaml.CORE_SCHEMA});cacheSet("agenda",AG)}
+  const ping=await fetch(`https://api.github.com/repos/${REPO}`,{headers:{Authorization:"Bearer "+ls(TK).trim(),Accept:"application/vnd.github+json"},cache:"no-store"});
+  if(ping.status===401)throw Object.assign(new Error("401"),{status:401});
+  if(ping.status===404||ping.status===403)throw Object.assign(new Error("sem acesso"),{status:404});
+  if(!ping.ok)throw Object.assign(new Error("http "+ping.status),{status:ping.status});
+  step="dados";
+  const opt=p=>p.catch(()=>null);
+  const [h,s,e,ro,agTxt]=await Promise.all([gh("data/app/hoje.json"),opt(gh("data/app/semana.json")),opt(gh("data/app/eventos.json")),opt(gh("data/app/rotina.json")),opt(gh("treinos/agenda/semana.yaml",true))]);
+  if(!h)throw Object.assign(new Error("sem hoje.json"),{status:404});
+  H=h;cacheSet("hoje",h); if(s){SEM=s;cacheSet("semana",s)} if(e){EV=e.eventos||[];cacheSet("eventos",EV)} if(ro){ROT=ro;cacheSet("rotina",ro)}
+  if(agTxt&&window.jsyaml){try{AG=jsyaml.load(agTxt,{schema:jsyaml.CORE_SCHEMA});cacheSet("agenda",AG)}catch(_){}}
+  setStatus("Conectado · dados de "+(H.atualizado||""));
   renderAll();
   const files=new Set();for(let i=-7;i<=7;i++){const f=workoutFile(dayISO(i));if(f)files.add(f)}
   await Promise.all([...files].map(async f=>{try{const t=await gh(f,true);if(t&&window.jsyaml)TR[f]=jsyaml.load(t,{schema:jsyaml.CORE_SCHEMA})}catch(_){}}));
@@ -469,13 +478,17 @@ async function load(){
   const ref=H?.data_ref||today,ds=[];for(let i=0;i<8;i++)ds.push(dayISO(-i,ref));
   const got=await Promise.all(ds.map(d=>gh("data/diario/"+d+".json").catch(()=>null)));
   const nd={};ds.forEach((d,i)=>{if(got[i])nd[d]=slimDia(got[i])});DI=nd;cacheSet("diario",nd);
-  $("ajFoot").textContent=H?.atualizado?"Dados de "+H.atualizado:"";
   renderAll();
  }catch(err){
-  if(err.status===401||err.status===403){openSheet("ajustes");$("tokMsg").textContent="O token não foi aceito ou expirou."}
-  else toast("Sem internet: últimos dados salvos");
+  let m;
+  if(err.status===401)m="O GitHub recusou o token: ele está errado, incompleto ou expirou. Crie outro e cole de novo.";
+  else if(err.status===404)m="O token funciona, mas não tem acesso ao garming-dados. Crie outro marcando o garming-dados em Repository access e Contents: Read-only.";
+  else if(err.status)m="O GitHub respondeu com erro "+err.status+" ("+step+").";
+  else m="Não consegui falar com o GitHub agora. Confira a internet e abra o app de novo.";
+  setStatus(m,true);if(err.status)openSheet("ajustes");else toast("Sem internet: últimos dados salvos");
  }
 }
+function setStatus(m,bad){$("tokMsg").textContent=m;$("tokMsg").style.color=bad?"#c2317a":"";$("ajFoot").textContent=bad?"":m}
 function slimDia(d){const s=d.sono||{};return{sono:s.horas,score:s.score,prof:s.profundo_min,leve:s.leve_min,rem:s.rem_min,acord:s.acordada_min,ini:s.inicio,fim:s.fim,hrv:d.hrv?.media_noite_ms,fc:d.fc_repouso,bb:d.body_battery?.ao_acordar}}
 
 /* check-in v3 */
@@ -745,7 +758,7 @@ $("pqGo").addEventListener("click",()=>{
 });
 
 /* ajustes */
-$("tokSave").addEventListener("click",()=>{const v=$("tokIn").value.trim();if(!v)return;ls(TK,v);$("tokIn").value="";$("tokMsg").textContent="";closeSheets();load()});
+$("tokSave").addEventListener("click",()=>{const v=$("tokIn").value.replace(/\s+/g,"");if(!v)return;ls(TK,v);$("tokIn").value="";if(ls(TK)!==v){setStatus("Este navegador não deixou salvar o token. Saia do modo privado e tente de novo.",true);return}setStatus("Conectando…");closeSheets();load()});
 $("tokDel").addEventListener("click",()=>{ls(TK,null);$("tokMsg").textContent="Token apagado deste aparelho."});
 function backupText(){return JSON.stringify({app:"like-a-machine",v:3,checkins:ckAll()})}
 $("bkCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(backupText());toast("Backup copiado")}catch(e){$("bkIn").value=backupText();$("bkIn").select();toast("Copie o texto do campo")}});
