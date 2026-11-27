@@ -68,6 +68,10 @@ p{margin:0}
 .now.sg-verde{background:#4fd18b;color:#04210f;box-shadow:0 12px 30px rgba(60,196,124,.3)}
 .now.sg-vermelho{background:#ff4d73;color:#2a0410;box-shadow:0 12px 30px rgba(255,61,110,.32)}
 .now.sg-amarelo .nx,.now.sg-verde .nx,.now.sg-vermelho .nx{border-top-color:rgba(0,0,0,.18)}
+.now .lg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.now .lg div{display:grid;gap:2px;background:rgba(255,255,255,.22);border-radius:14px;padding:9px 11px}
+.now .lg b{font-family:var(--f-disp);font-weight:800;font-size:20px;letter-spacing:-.02em}
+.now .lg span{font-size:11.5px;line-height:1.3}
 .now .why2{font-size:13px;line-height:1.35;opacity:.85}
 .now .say{font-family:var(--f-disp);font-weight:700;font-size:19px;line-height:1.2;letter-spacing:-.02em}
 .load{height:12px;border-radius:99px;background:rgba(31,6,20,.14);overflow:hidden}
@@ -843,13 +847,13 @@ function sleepRec(iso){
  let why;
  if(rec===plan&&slp(plan)>=meta*60-10)why=`Seu horário de sempre já dá ${dur(slp(plan))} de sono.`;
  else if(rec<=goal+10)why=`Assim você dorme ${meta}h e acorda às ${fmtMin(wake)}, sem fugir muito do seu horário de costume.`;
- else why=`${meta}h pediriam deitar às ${fmtMin(goal)}. ${fmtMin(rec)} chega perto sem fugir muito do seu horário de costume (${fmtMin(anchor)}).`;
+ else why=`Para dormir ${meta}h seria ${fmtMin(goal)}. ${fmtMin(rec)} é o mais perto disso sem se afastar mais de 2h do seu horário habitual.`;
  return{rec,goal,plan,anchor,wake,meta,sRec:slp(rec),sPlan:slp(plan),why}}
 function renderSono(){
  const des=blocksFor(today).find(b=>b[3]==="Desacelerar"),dep=deitar(today),tm=dayISO(1),b2=blocksFor(tm)[0],w2=workout(tm);
  const bed=dep?dep[0]:"22:00";
  const sr=sleepRec(today),rr=fmtMin(sr.rec);
- $("sNow").innerHTML=`<div class="now"><div class="k"><span>Deitar às</span><span>desacelerar ${fmtMin(sr.rec-45)}</span></div><div class="huge">${rr.replace("h",":").replace(/:$/,":00")}</div><div class="k"><span>${dur(sr.sRec)} de sono</span><span>acorda ${fmtMin(sr.wake)}</span></div><p class="why2">${esc(sr.why)}</p><div class="nx"><span>Pela agenda</span><b>${fmtMin(sr.plan)} · ${dur(sr.sPlan)} de sono</b></div><div class="nx"><span>Para bater ${sr.meta}h</span><b>${fmtMin(sr.goal)}</b></div><div class="nx"><span>Amanhã</span><b>${w2?esc(nameTxt(w2.name)):"Sem treino"}</b></div></div>`;
+ $("sNow").innerHTML=`<div class="now"><div class="k"><span>Deitar às</span><span>desacelerar ${fmtMin(sr.rec-45)}</span></div><div class="huge">${rr.replace("h",":").replace(/:$/,":00")}</div><div class="k"><span>acorda ${fmtMin(sr.wake)}</span><span></span></div><div class="lg"><div><b>${dur(sr.sRec)}</b><span>de sono · ${sr.sRec>=sr.meta*60-5?"bate a meta":dur(sr.meta*60-sr.sRec)+" abaixo da meta de "+sr.meta+"h"}</span></div><div><b>${Math.abs(sr.rec-sr.anchor)<10?"igual":dur(Math.abs(sr.rec-sr.anchor))}</b><span>${Math.abs(sr.rec-sr.anchor)<10?"ao":sr.rec<sr.anchor?"antes do":"depois do"} seu horário habitual (${fmtMin(sr.anchor)})</span></div></div><p class="why2">${esc(sr.why)}</p><div class="nx"><span>Pela agenda</span><b>${fmtMin(sr.plan)} · ${dur(sr.sPlan)} de sono</b></div><div class="nx"><span>Para bater ${sr.meta}h</span><b>${fmtMin(sr.goal)}</b></div><div class="nx"><span>Amanhã</span><b>${w2?esc(nameTxt(w2.name)):"Sem treino"}</b></div></div>`;
  const all=nights(),ns=all.filter(x=>x.sono!=null),meta=ROT?.meta_sono_h||8;
  const avg=ns.length?ns.reduce((a,x)=>a+x.sono,0)/ns.length:H?.medias?.sono_7;
  const debt=ns.reduce((a,x)=>a+(x.sono-meta),0);
