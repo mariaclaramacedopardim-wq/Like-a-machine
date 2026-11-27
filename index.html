@@ -262,6 +262,39 @@ textarea.field{min-height:96px;resize:vertical}
 .how{margin:0;padding:0;list-style:none;display:grid;gap:5px}
 .how li{font-size:13.5px;line-height:1.35;color:var(--soft);padding-left:14px;position:relative}
 .how li::before{content:"";position:absolute;left:0;top:.45em;width:6px;height:6px;border-radius:50%;background:var(--pink)}
+.hnav{display:flex;justify-content:space-between;align-items:center;margin:10px 16px 0;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.hnav button{width:36px;height:32px;font-size:20px;color:var(--ink)}
+.sq{display:block;aspect-ratio:1;border-radius:5px;background:transparent;box-shadow:inset 0 0 0 1.5px rgba(29,27,46,.16)}
+.sq.ok{background:var(--c);box-shadow:none}
+.sq.no{box-shadow:inset 0 0 0 1.5px rgba(29,27,46,.22);background:rgba(255,255,255,.5)}
+.sq.rest{box-shadow:none;background:repeating-linear-gradient(-45deg,rgba(29,27,46,.12) 0 2px,transparent 2px 5px)}
+.sq.fut,.sq.nd{box-shadow:inset 0 0 0 1px rgba(29,27,46,.08);background:none}
+.sq.td{outline:1.5px solid var(--ink);outline-offset:1px}
+.hw{margin:10px 12px 0;padding:10px 12px;display:grid;gap:7px}
+.hwr{display:grid;grid-template-columns:minmax(0,1fr) repeat(7,22px) 30px;gap:5px;align-items:center}
+.hl{font-size:12.5px;line-height:1.15}
+.hc{font-family:var(--f-mono);font-size:10px;color:var(--soft);text-align:right}
+.hwh span{font-family:var(--f-mono);font-size:9px;color:var(--faint);text-align:center;text-transform:uppercase;display:grid}
+.hwh b{font-size:11px;color:var(--ink);font-weight:500}
+.hwh .td b{color:var(--pinkdeep)}
+.hleg{display:flex;gap:14px;margin:8px 20px 0;font-family:var(--f-mono);font-size:9px;color:var(--soft);text-transform:uppercase}
+.hleg span{display:inline-flex;align-items:center;gap:5px}.hleg .sq{width:11px}
+.hm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 12px 0}
+.hmc{border-radius:18px;padding:10px 10px 11px;display:grid;gap:8px}
+.hmt{display:flex;justify-content:space-between;gap:6px;align-items:baseline;font-size:12px;line-height:1.15}
+.hmt b{font-family:var(--f-mono);font-size:10px;font-weight:500;color:var(--soft);white-space:nowrap}
+.hmg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.hmg .sq{border-radius:3px}
+.hmg em{font-style:normal;font-family:var(--f-mono);font-size:8px;color:var(--faint);text-align:center}
+.qual{display:grid;gap:12px;padding:12px 14px}
+.qr{display:grid;gap:2px}
+.ql{font-size:12.5px;font-weight:500}
+.qsv{width:100%;height:auto;display:block;overflow:visible}
+.qsv text{font-family:var(--f-mono);font-size:9px;fill:var(--faint);text-transform:uppercase}
+.qsv line{stroke:rgba(29,27,46,.1);stroke-width:1;vector-effect:non-scaling-stroke}
+.qsv path{fill:none;stroke:rgba(29,27,46,.35);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.week .ok i{position:absolute;top:3px;right:4px;width:12px;height:12px;border-radius:50%;background:var(--ink);color:#fff;font-style:normal;font-size:8px;line-height:12px;text-align:center}
+.week .sel.ok i{background:var(--pinkfg)}
 .legenda{margin:6px 20px 0;font-size:11.5px;color:var(--soft);text-align:center}
 /* horário de deitar: a meta de cada noite fica sobre a linha */
 .bd>div,.bdk{grid-template-columns:30px minmax(0,1fr) 46px}
@@ -372,31 +405,15 @@ textarea.field{min-height:96px;resize:vertical}
  <div class="sh"><span class="mono ink">Como isso pesa hoje</span></div>
  <div class="card glass eff" id="cEff"></div>
  <div class="card glass tip" id="cTip"></div>
- <button class="more glass" data-go="semana" style="margin-top:16px"><span>Ver a semana</span><span>→</span></button>
- <button class="more glass" data-go="registros"><span>Registros do check-in</span><span>→</span></button>
+ <button class="more glass" data-go="habitos" style="margin-top:16px"><span>Hábitos da semana e do mês</span><span>→</span></button>
 </section>
 
-<section class="view" id="v-semana">
+<section class="view" id="v-habitos">
  <button class="back" data-go="corpo">‹ Corpo</button>
- <div class="chead"><span class="ctitle wide">Semana</span><span class="mono" id="wRange"></span></div>
- <div id="wNow"></div>
- <div class="sh"><span class="mono ink">Média de 7 dias</span><span class="mono">vs 28 dias</span></div>
- <div class="read" id="wRead"></div>
- <div class="card glass spark" id="wSpark"></div>
- <div class="card glass tip" id="wFoco"></div>
- <div id="wProvas"></div>
- <div class="sh"><span class="mono ink">Dia a dia</span></div>
- <div class="card glass list" id="wDias"></div>
-</section>
-
-<section class="view" id="v-registros">
- <button class="back" data-go="corpo">‹ Corpo</button>
- <div class="chead"><span class="ctitle wide">Registros</span><span class="mono">5 semanas</span></div>
- <div class="chips dark" id="gChips" style="padding:0 16px"></div>
- <div class="card glass"><div class="heat" id="gHeat"></div><div class="heatax"><span id="gFrom"></span><span>hoje</span></div></div>
- <div class="read r3" id="gRead" style="margin-top:10px"></div>
- <div class="sh"><span class="mono ink">O que mais pesou</span></div>
- <div class="card glass list" id="gPesou"></div>
+ <div class="chead"><span class="ctitle wide">Hábitos</span></div>
+ <div class="tabs glass"><button class="on" data-htab="sem">Semana</button><button data-htab="mes">Mês</button></div>
+ <div class="hnav"><button data-hnav="-1" aria-label="Anterior">‹</button><span id="hbRange"></span><button data-hnav="1" aria-label="Próximo">›</button></div>
+ <div id="hbBody"></div>
 </section>
 </div>
 
@@ -771,7 +788,7 @@ function weekStart(){const w=wdOf(today);return dayISO(-((w+6)%7))}
 function renderTreino(){
  const ws=weekStart();tSel=tSel||today;
  $("tRange").textContent=dShort(ws)+" – "+dShort(dayISO(6,ws));
- let h="";for(let i=0;i<7;i++){const d=dayISO(i,ws);h+=`<button data-tday="${d}" class="${d===today?"today ":""}${d===tSel?"sel":""}"><span>${WD[wdOf(d)]}</span><b>${abbr(workout(d))}</b></button>`}
+ const HMAP=hbDay();let h="";for(let i=0;i<7;i++){const d=dayISO(i,ws);const dn=d<=today&&hbState("treino",d,HMAP,{})==="ok";h+=`<button data-tday="${d}" class="${d===today?"today ":""}${d===tSel?"sel ":""}${dn?"ok":""}">${dn?"<i>✓</i>":""}<span>${WD[wdOf(d)]}</span><b>${abbr(workout(d))}</b></button>`}
  $("tWeek").innerHTML=h;
  const w=workout(tSel),tb=trainBlock(tSel),st=wStats(w);
  $("tNow").innerHTML=`<div class="now"><div class="k"><span>${WDL[wdOf(tSel)]}${tb&&w?" · "+fmtH(tb[0])+(tb[1]?"–"+fmtH(tb[1]):""):""}</span></div><div class="ttl">${w?nameLines(w.name):"Descanso"}</div>${w?.description?`<div class="nx"><span>${esc(w.description)}</span></div>`:""}${st.length?`<div class="stats">${st.map(([v,l])=>`<div><b>${esc(v)}</b><span>${l}</span></div>`).join("")}</div>`:""}</div>`;
@@ -853,45 +870,61 @@ function renderCorpo(){
  if(dep&&b2&&toMin(b2[0])<6*60)act="Deitar até "+fmtH(dep[0])+": amanhã acorda "+fmtH(b2[0]);
  $("cTip").hidden=!act;$("cTip").innerHTML=`<span class="mono">Para hoje</span><p>${esc(act)}</p>`;
 }
-function arrow(a,b){if(a==null||b==null)return"";const d=a-b;if(Math.abs(d)/(Math.abs(b)||1)<.04)return" =";return d>0?" ↑":" ↓"}
-function renderSemana(){
- const s=H?.serie||[],m=H?.medias||{},ref=H?.data_ref||today;
- $("wRange").textContent=dShort(dayISO(-6,ref))+" – "+dShort(ref);
- const parts=[];
- if(m.sono_7!=null)parts.push(m.sono_7<m.sono_28-0.2?"Sono mais curto que o normal":m.sono_7>m.sono_28+0.2?"Sono mais longo que o normal":"Sono no seu normal");
- if(m.hrv_7!=null)parts.push(m.hrv_7<m.hrv_28*0.9?"HRV abaixo do normal":"HRV estável");
- if(m.fc_7!=null)parts.push(m.fc_7>m.fc_28+2?"FC de repouso subiu":"FC de repouso estável");
- $("wNow").innerHTML=parts.length?`<div class="now"><div class="k"><span>O que o relógio contou</span><span>7 dias</span></div><p class="say">${esc(parts.join(", "))}.</p></div>`:"";
- $("wRead").innerHTML=`<div class="glass"><b>${hmB(m.sono_7)}</b><span>Sono${arrow(m.sono_7,m.sono_28)}</span></div><div class="glass"><b>${m.hrv_7??"–"}<small>ms</small></b><span>HRV${arrow(m.hrv_7,m.hrv_28)}</span></div><div class="glass"><b>${num(m.fc_7,0)}</b><span>FC rep.${arrow(m.fc_7,m.fc_28)}</span></div><div class="glass"><b>${m.passos_7!=null?num(m.passos_7/1000):"–"}<small>mil</small></b><span>Passos${arrow(m.passos_7,m.passos_28)}</span></div>`;
- const bars=(k,max,cls)=>`<div class="bars">${s.map(x=>x[k]==null?`<i class="gap"></i>`:`<i class="${cls||""}" style="height:${Math.min(100,x[k]/max*100)}%"></i>`).join("")}</div><div class="days7">${s.map(x=>`<span>${x.d}</span>`).join("")}</div>`;
- $("wSpark").innerHTML=`<div class="sk"><span class="mono">Sono por noite</span>${bars("sono",10)}</div><div class="sk"><span class="mono">HRV por noite</span>${bars("hrv",Math.max(60,...s.map(x=>x.hrv||0)),"lav")}</div>`;
- const f=SEM?.foco?.titulo;$("wFoco").hidden=!f;$("wFoco").innerHTML=`<span class="mono">Foco</span><p>${esc(f||"")}</p>`;
- const ev=(EV||[]).filter(e=>e.data>=today).slice(0,5);
- $("wProvas").innerHTML=ev.length?`<div class="card glass list"><span class="mono" style="padding-bottom:4px">Provas e compromissos</span>${ev.map(e=>`<div><span>${esc(e.titulo||e.nome||"")}</span><b>${dShort(e.data)}</b></div>`).join("")}</div>`:"";
- $("wDias").innerHTML=[...s].reverse().map(x=>`<div><span>dia ${x.d}</span><b>${hmTxt(x.sono)} · HRV ${x.hrv??"–"} · FC ${x.fc??"–"}</b></div>`).join("")||`<p class="empty">Sem dados</p>`;
+/* hábitos */
+const HB=[["deitar","Deitou no horário","#8e7bff"],["sono","Dormiu a meta","#b9b0ff"],["treino","Treinou","#9fbf00"],["agua","Bebeu a meta de água","#5b8cff"],["passos","Bateu os passos","#ff5ea8"],["check","Fez o check-in","#1d1b2e"]];
+const HQ=[["humor","Humor"],["energia","Energia"],["estresse","Calma"],["foco","Foco"]];
+let hbTab="sem",hbOff=0;
+function hbDay(){const m={};(H?.habitos||[]).forEach(x=>m[x.d]=x);return m}
+function hbState(k,d,M,ck){
+ if(d>today)return"fut";const x=M[d],meta=ROT?.meta_sono_h||8;
+ if(k==="deitar"){const n=M[dayISO(1,d)];if(d===today||!n||n.deitou==null)return d===today?"fut":"nd";let b=n.deitou;if(b<720)b+=1440;let mt=toMin((deitar(d)||["22:00"])[0]);if(mt<720)mt+=1440;return b<=mt+15?"ok":"no"}
+ if(k==="check")return ck[d]?"ok":d===today?"fut":"no";
+ if(!x)return"nd";
+ if(k==="sono")return x.sono==null?"nd":x.sono>=meta-0.5?"ok":"no";
+ if(k==="treino"){const n=d===today?Math.max(x.treinos||0,H?.dia?.treinos?.length||0):x.treinos||0;return n?"ok":workout(d)?(d===today?"fut":"no"):"rest"}
+ if(k==="agua"){const mt=ROT?.meta_agua_ml||3000;return x.agua==null?"nd":x.agua>=mt?"ok":d===today?"fut":"no"}
+ if(k==="passos")return x.passos==null||!x.passos_meta?"nd":x.passos>=x.passos_meta?"ok":d===today?"fut":"no";
+ return"nd"}
+function qLvl(v){return v==null?null:v>=4?0:v>=3?1:2}
+function qChart(days,k,ck){
+ const W=320,L=44,Hh=56,n=days.length,x=i=>L+(n===1?(W-L)/2:6+i*(W-L-12)/(n-1)),y=l=>8+l*20,C=["#8e7bff","#ffb300","#ff5ea8"];
+ const pts=days.map((d,i)=>{const l=qLvl(ck[d]?.[k]);return l==null?null:[x(i),y(l),l]});
+ let path="",pen=false;pts.forEach(p=>{if(!p){pen=false;return}path+=(pen?"L":"M")+p[0].toFixed(1)+" "+p[1];pen=true});
+ return `<svg viewBox="0 0 ${W} ${Hh}" class="qsv">${["bom","médio","ruim"].map((t,l)=>`<text x="0" y="${y(l)+3}">${t}</text><line x1="${L}" x2="${W}" y1="${y(l)}" y2="${y(l)}"/>`).join("")}${path?`<path d="${path}"/>`:""}${pts.filter(Boolean).map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1]}" r="${n>10?3.2:5}" fill="${C[p[2]]}"/>`).join("")}</svg>`}
+function qBlock(days,ck){
+ const has=days.some(d=>ck[d]);
+ return `<div class="sh"><span class="mono ink">Como você se sentiu</span><span class="mono">check-in</span></div>
+ <div class="card glass qual">${has?HQ.map(([k,l])=>`<div class="qr"><span class="ql">${l}</span>${qChart(days,k,ck)}</div>`).join(""):`<p class="empty">Faça o check-in para ver seu humor, energia, calma e foco aqui.</p>`}</div>`}
+function renderHabitos(){
+ const M=hbDay(),ck=ckAll();
+ document.querySelectorAll("[data-htab]").forEach(b=>b.classList.toggle("on",b.dataset.htab===hbTab));
+ let h="";
+ if(hbTab==="sem"){
+  const ws=dayISO(hbOff*7,weekStart()),days=[...Array(7)].map((_,i)=>dayISO(i,ws));
+  $("hbRange").textContent=dShort(ws)+" – "+dShort(days[6]);
+  h+=`<div class="card glass hw"><div class="hwr hwh"><span></span>${days.map(d=>`<span class="${d===today?"td":""}">${WD[wdOf(d)].slice(0,1)}<b>${+d.slice(8)}</b></span>`).join("")}<span></span></div>`+
+  HB.map(([k,l,c])=>{const st=days.map(d=>hbState(k,d,M,ck)),ok=st.filter(x=>x==="ok").length,tot=st.filter(x=>x==="ok"||x==="no").length;
+   return `<div class="hwr"><span class="hl">${l}</span>${st.map(x=>`<i class="sq ${x}" style="--c:${c}"></i>`).join("")}<span class="hc">${tot?ok+"/"+tot:""}</span></div>`}).join("")+`</div>`;
+  h+=`<div class="hleg"><span><i class="sq ok" style="--c:var(--ink)"></i>feito</span><span><i class="sq no"></i>não feito</span><span><i class="sq rest"></i>descanso</span></div>`;
+  h+=qBlock(days,ck);
+ }else{
+  const t=new Date(today+"T12:00:00Z");t.setUTCDate(1);t.setUTCMonth(t.getUTCMonth()+hbOff);
+  const y=t.getUTCFullYear(),mo=t.getUTCMonth(),nd=new Date(Date.UTC(y,mo+1,0)).getUTCDate(),first=`${y}-${String(mo+1).padStart(2,"0")}-01`;
+  const days=[...Array(nd)].map((_,i)=>dayISO(i,first)),lead=(wdOf(first)+6)%7;
+  $("hbRange").textContent=MES[mo]+" "+y;
+  h+=`<div class="hm">`+HB.map(([k,l,c])=>{const st=days.map(d=>hbState(k,d,M,ck)),ok=st.filter(x=>x==="ok").length,tot=st.filter(x=>x==="ok"||x==="no").length;
+   return `<div class="glass hmc"><div class="hmt"><span>${l}</span><b>${tot?ok+"/"+tot:"–"}</b></div><div class="hmg">${["S","T","Q","Q","S","S","D"].map(w=>`<em>${w}</em>`).join("")}${"<i></i>".repeat(lead)}${st.map((x,i)=>`<i class="sq ${x}${days[i]===today?" td":""}" style="--c:${c}"></i>`).join("")}</div></div>`}).join("")+`</div>`;
+  h+=`<div class="hleg"><span><i class="sq ok" style="--c:var(--ink)"></i>feito</span><span><i class="sq no"></i>não feito</span><span><i class="sq rest"></i>descanso</span></div>`;
+  h+=qBlock(days,ck);
+ }
+ $("hbBody").innerHTML=h;
 }
-const GMET=[["energia","Energia"],["humor","Humor"],["estresse","Estresse"],["sono","Sono"],["comida","Comida"],["foco","Foco"]];
-let gSel="energia";
-function renderRegistros(){
- const all=ckAll();
- $("gChips").innerHTML=GMET.map(([k,l])=>`<button data-g="${k}" class="${k===gSel?"on":""}">${l}</button>`).join("");
- const start=dayISO(-28,weekStart());let h="";const vals=[];
- for(let i=0;i<35;i++){const d=dayISO(i,start),v=all[d]?.[gSel];if(v!=null&&d<=today)vals.push(v);
-  const op=v==null?null:.15+v/5*.85;h+=`<i title="${dShort(d)}" style="${d>today?"opacity:.3;":""}${op!=null?`background:rgba(255,61,146,${op.toFixed(2)})`:""}"></i>`}
- $("gHeat").innerHTML=h;$("gFrom").textContent=dShort(start);
- const keys=Object.keys(all).filter(d=>d>=start&&d<=today);
- const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
- const ret=keys.filter(d=>all[d].retomei===1).length,falls=keys.filter(d=>all[d].retomei!=null).length;
- $("gRead").innerHTML=`<div class="glass"><b>${keys.length}</b><span>Dias</span></div><div class="glass"><b>${num(avg)}<small>/5</small></b><span>Média</span></div><div class="glass"><b>${falls?ret+"<small>/"+falls+"</small>":"–"}</b><span>Retomei</span></div>`;
- const cnt={};keys.forEach(d=>(all[d].pesou||[]).forEach(p=>{if(p!=="Nada pesou")cnt[p]=(cnt[p]||0)+1}));
- const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5);
- $("gPesou").innerHTML=top.length?top.map(([p,c])=>`<div><span>${esc(p)}</span><b>${c}×</b></div>`).join(""):`<p class="empty">Faça o check-in para ver padrões</p>`;
-}
-$("gChips").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){gSel=b.dataset.g;renderRegistros()}});
-function renderAll(){today=todayISO();renderHoje();renderLinha();renderTreino();renderCarga();renderSono();renderCorpo();renderSemana();renderRegistros()}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-htab]");if(t){hbTab=t.dataset.htab;hbOff=0;renderHabitos();return}
+ const n=e.target.closest("[data-hnav]");if(n){hbOff=Math.min(0,hbOff+(+n.dataset.hnav));renderHabitos()}});
+function renderAll(){today=todayISO();renderHoje();renderLinha();renderTreino();renderCarga();renderSono();renderCorpo();renderHabitos()}
 
 /* navegação */
-const TABOF={hoje:"hoje",linha:"hoje",treino:"treino",carga:"treino",sono:"sono",regras:"sono",corpo:"corpo",semana:"corpo",registros:"corpo"};
+const TABOF={hoje:"hoje",linha:"hoje",treino:"treino",carga:"treino",sono:"sono",regras:"sono",corpo:"corpo",habitos:"corpo"};
 function go(v){closeSheets();document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-"+v));
  document.querySelectorAll(".bar [data-go]").forEach(b=>b.classList.toggle("on",b.dataset.go===TABOF[v]));window.scrollTo(0,0)}
 document.addEventListener("click",e=>{
