@@ -67,8 +67,7 @@ p{margin:0}
 .now .nx b{font-weight:600;text-align:right}
 .now .say{font-family:var(--f-disp);font-weight:700;font-size:19px;line-height:1.2;letter-spacing:-.02em}
 .load{height:12px;border-radius:99px;background:rgba(31,6,20,.14);overflow:hidden}
-.load b{display:block;height:100%;border-radius:99px;background:repeating-linear-gradient(-45deg,#1f0614 0 8px,#4a1630 8px 16px);background-size:22.6px 22.6px;animation:carrega 1.2s linear infinite;transition:width .6s ease}
-@keyframes carrega{to{background-position:22.6px 0}}
+.load b{display:block;height:100%;border-radius:99px;background:#1f0614;transition:width .6s ease}
 
 .stress{display:flex;justify-content:space-between;margin:10px 12px 0;padding:8px 14px;border:1px dashed rgba(255,79,158,.5);border-radius:14px;background:rgba(255,94,168,.08);color:#c2317a;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
 .sh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:16px 20px 8px}
@@ -94,11 +93,16 @@ p{margin:0}
 .nbk{display:flex;gap:14px;margin-top:12px;font-family:var(--f-mono);font-size:9px;color:var(--soft);text-transform:uppercase}
 .nbk span{display:inline-flex;align-items:center;gap:5px}
 .nbk span::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
-.bd{display:grid;gap:10px}
-.bd>div{display:grid;grid-template-columns:34px 52px 1fr;align-items:center;gap:8px}
-.bd b{text-align:left}
-.bd em{justify-self:end;font-style:normal;font-family:var(--f-mono);font-size:10px;padding:4px 9px;border-radius:99px;background:#e4def9;color:#3d2f8f;text-transform:uppercase;letter-spacing:.03em}
-.bd em.late{background:#ffd3e6;color:#9b1450}
+.bd{display:grid;gap:9px}
+.bd>div{display:grid;grid-template-columns:34px 1fr 46px;align-items:center;gap:8px}
+.bd .tr{position:relative;height:14px}
+.bd .tr::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:rgba(29,27,46,.08);border-radius:2px}
+.bd .tr i{position:absolute;top:0;bottom:0;border-radius:99px;background:var(--lav)}
+.bd .tr i.late{background:var(--pink)}
+.bd .tr em{position:absolute;left:50%;top:-5px;bottom:-5px;border-left:2px solid var(--ink)}
+.bdk{display:grid;grid-template-columns:34px 1fr 46px;gap:8px;margin-bottom:8px;font-family:var(--f-mono);font-size:9px;color:var(--soft);text-transform:uppercase}
+.bdk div{display:flex;justify-content:space-between}
+.bdk b{color:var(--ink);font-weight:500}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 12px 0}
 .pair>*{border-radius:22px;padding:12px;display:grid;gap:3px;align-content:start;min-width:0}
 .pair .mono{font-size:9.5px}
@@ -282,7 +286,7 @@ textarea.field{min-height:96px;resize:vertical}
  <div class="sh"><span class="mono ink">Quanto dormiu</span><span class="mono" id="sMetaH"></span></div>
  <div class="card glass"><div class="nb" id="sDebt"></div><div class="nbk"><span style="--c:var(--lav)">bateu a meta</span><span style="--c:var(--pink)">abaixo</span><span style="--c:var(--ink)">meta</span></div></div>
  <div class="sh"><span class="mono ink">Horário de deitar</span><span class="mono" id="sMeta"></span></div>
- <div class="card glass"><div class="bd" id="sBed"></div></div>
+ <div class="card glass"><div class="bdk"><span></span><div><span>← mais cedo</span><b>meta</b><span>mais tarde →</span></div><span></span></div><div class="bd" id="sBed"></div></div>
  <button class="more glass" data-go="regras"><span>Suas regras de sono</span><span>→</span></button>
 </section>
 
@@ -678,9 +682,9 @@ function renderSono(){
  $("sMetaH").textContent="meta "+meta+"h";
  $("sDebt").innerHTML=all.map(x=>`<div><span>${WD[wdOf(dayISO(-1,x.d))]}</span><div class="tr">${x.sono!=null?`<i class="${x.sono<meta-0.25?"short":""}" style="width:${pc(x.sono)}%"></i>`:""}<em style="left:${pc(meta)}%"></em></div><b>${hmTxt(x.sono)}</b></div>`).join("")||`<p class="empty">Sem noites ainda</p>`;
  $("sMeta").textContent="meta "+fmtH(bed);
- $("sBed").innerHTML=all.filter(x=>x.ini).map(x=>{const mm=bedMin(x.ini),d=dayISO(-1,x.d),mt=toMin((deitar(d)||[bed])[0]),df=mm-mt;
-  const lab=df<=15?(df<-15?"antes da meta":"no horário"):dur(df)+" depois";
-  return `<div><span>${WD[wdOf(d)]}</span><b>${fmtMin(mm)}</b><em class="${df>15?"late":""}">${lab}</em></div>`}).join("")||`<p class="empty">Sem noites ainda</p>`;
+ const rows=all.filter(x=>x.ini).map(x=>{const mm=bedMin(x.ini),d=dayISO(-1,x.d);return{d,mm,df:mm-toMin((deitar(d)||[bed])[0])}});
+ const sc=Math.max(120,...rows.map(r=>Math.abs(r.df)));
+ $("sBed").innerHTML=rows.map(r=>{const w=Math.max(1.5,Math.abs(r.df)/sc*50);return `<div><span>${WD[wdOf(r.d)]}</span><div class="tr"><i class="${r.df>15?"late":""}" style="${r.df>=0?"left:50%":"right:50%"};width:${w}%"></i><em></em></div><b>${fmtMin(r.mm)}</b></div>`}).join("")||`<p class="empty">Sem noites ainda</p>`;
  $("rList").innerHTML=(ROT?.regras_sono||[]).map((r,i)=>`<div><span>${esc(r)}</span><b>${i+1}</b></div>`).join("")||`<p class="empty">Sem regras salvas</p>`;
 }
 function renderCorpo(){
